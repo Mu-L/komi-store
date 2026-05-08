@@ -172,6 +172,15 @@ class AndroidDownloader(
                         if (total != null) ((finalDownloaded * 100L) / total).toInt() else 100
                     emit(DownloadProgress(finalDownloaded, total, finalPercent))
                 }
+            } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                // Cancellation is the normal MultiSourceDownloader race
+                // outcome (loser racer cancelled when winner emits first
+                // progress). Don't log it as an error — that floods
+                // Logcat with confusing red lines that look like real
+                // download failures. Clean up the temp file and rethrow
+                // so structured concurrency stays correct.
+                tempFile.delete()
+                throw e
             } catch (e: Exception) {
                 tempFile.delete()
                 Logger.e(e) { "Download failed" }

@@ -152,6 +152,39 @@ interface InstalledAppDao {
     )
 
     /**
+     * Sets (or clears) [InstalledAppEntity.skippedReleaseTag] for
+     * [packageName]. Pair-writes `isUpdateAvailable = 0` when [tag] is
+     * non-null so the apps list drops the badge atomically with the
+     * skip — without the second column the UI would still show "Update"
+     * for a frame until the next periodic check ran.
+     *
+     * Pass `null` for [tag] to unskip; the row's update badge stays
+     * untouched in that branch and the next `checkForUpdates` will
+     * recompute it normally.
+     */
+    @Query(
+        """
+        UPDATE installed_apps
+           SET skippedReleaseTag = :tag,
+               isUpdateAvailable = CASE WHEN :tag IS NULL THEN isUpdateAvailable ELSE 0 END
+         WHERE packageName = :packageName
+        """,
+    )
+    suspend fun setSkippedReleaseTag(
+        packageName: String,
+        tag: String?,
+    )
+
+    @Query(
+        """
+        SELECT * FROM installed_apps
+         WHERE skippedReleaseTag IS NOT NULL
+         ORDER BY appName COLLATE NOCASE ASC
+        """,
+    )
+    fun getAppsWithSkippedReleaseTag(): Flow<List<InstalledAppEntity>>
+
+    /**
      * Atomically writes the installed-version columns and the
      * `isUpdateAvailable` flag for [packageName]. Used by the external
      * install / sideload path (`PackageEventReceiver.handleExternalInstall`)

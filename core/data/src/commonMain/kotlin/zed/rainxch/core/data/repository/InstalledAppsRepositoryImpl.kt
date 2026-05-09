@@ -390,14 +390,31 @@ class InstalledAppsRepositoryImpl(
                     latestCode > 0L &&
                     installedCode == latestCode
 
+            // Auto-unskip when a strictly newer release than the one
+            // the user skipped lands. We bias toward re-notifying so a
+            // stale skip can't pin the badge off forever — users can
+            // re-skip the new tag if they don't want it either.
+            val skippedTag = app.skippedReleaseTag
+            val matchesSkipped =
+                skippedTag != null &&
+                    VersionMath.isExactSameVersion(matchedRelease.tagName, skippedTag)
+            val skipBecameStale =
+                skippedTag != null &&
+                    !matchesSkipped &&
+                    VersionMath.isVersionNewer(matchedRelease.tagName, skippedTag)
+            if (skipBecameStale) {
+                installedAppsDao.setSkippedReleaseTag(packageName, null)
+            }
+
             val isUpdateAvailable =
-                if (codesAlreadyMatch) {
-                    false
-                } else {
-                    VersionMath.isVersionNewer(
-                        candidate = matchedRelease.tagName,
-                        current = app.installedVersion,
-                    )
+                when {
+                    codesAlreadyMatch -> false
+                    matchesSkipped -> false
+                    else ->
+                        VersionMath.isVersionNewer(
+                            candidate = matchedRelease.tagName,
+                            current = app.installedVersion,
+                        )
                 }
 
             Logger.d {
@@ -663,6 +680,18 @@ class InstalledAppsRepositoryImpl(
             siblingCount = null,
         )
     }
+
+    override suspend fun setSkippedReleaseTag(
+        packageName: String,
+        tag: String?,
+    ) {
+        installedAppsDao.setSkippedReleaseTag(packageName, tag?.takeIf { it.isNotBlank() })
+    }
+
+    override fun getAppsWithSkippedReleaseTag(): Flow<List<InstalledApp>> =
+        installedAppsDao
+            .getAppsWithSkippedReleaseTag()
+            .map { it.map { entity -> entity.toDomain() } }
 
     override suspend fun setPendingInstallFilePath(
         packageName: String,

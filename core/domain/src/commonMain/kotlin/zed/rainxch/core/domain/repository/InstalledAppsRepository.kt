@@ -132,6 +132,30 @@ interface InstalledAppsRepository {
     suspend fun clearPreferredVariant(packageName: String)
 
     /**
+     * Marks [tag] as skipped for [packageName] so the periodic update
+     * check stops surfacing it as an available update. Pass `null` for
+     * [tag] to clear an existing skip.
+     *
+     * Implementations also clear the row's `isUpdateAvailable` flag in
+     * the same write when [tag] is non-null so the apps list drops the
+     * badge immediately. The skip auto-clears the moment a strictly
+     * newer release lands; users do not have to unskip manually for a
+     * future bump.
+     */
+    suspend fun setSkippedReleaseTag(
+        packageName: String,
+        tag: String?,
+    )
+
+    /**
+     * Live stream of every installed app whose
+     * [InstalledApp.skippedReleaseTag] is non-null. Backs the Tweaks
+     * "Skipped updates" sub-screen; emits `[]` when no app is currently
+     * skipping a release.
+     */
+    fun getAppsWithSkippedReleaseTag(): Flow<List<InstalledApp>>
+
+    /**
      * Sets (or clears) the path + version + asset name of a
      * downloaded-but-not-yet-installed asset for [packageName].
      *

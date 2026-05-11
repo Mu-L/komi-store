@@ -203,6 +203,8 @@ class AppsViewModel(
                 _state.update {
                     it.copy(lastCheckedTimestamp = System.currentTimeMillis())
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 logger.error("Check all for updates failed: ${e.message}")
             } finally {
@@ -220,6 +222,8 @@ class AppsViewModel(
                 val now = System.currentTimeMillis()
                 lastAutoCheckTimestamp = now
                 _state.update { it.copy(lastCheckedTimestamp = now) }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 logger.error("Refresh failed: ${e.message}")
             } finally {

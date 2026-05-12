@@ -63,14 +63,27 @@ jobs:
           retry ./gradlew :composeApp:packageExe :composeApp:packageMsi
         shell: bash
 
+      # Flatten .exe + .msi into a single directory so the uploaded artifact
+      # zip contains them at the root (no `exe/` and `msi/` subdirectories).
+      # SignPath's artifact-configuration XML uses simple `*.exe` / `*.msi`
+      # globs at zip root; nested paths cause "Expected path to match exactly
+      # 1 item, but found 0" because upload-artifact@v4 strips the longest
+      # common prefix only, so multi-source paths preserve their tail dirs.
+      - name: Stage Windows installers for upload
+        run: |
+          set -euo pipefail
+          mkdir -p windows-staging
+          cp composeApp/build/compose/binaries/main/exe/*.exe windows-staging/
+          cp composeApp/build/compose/binaries/main/msi/*.msi windows-staging/
+          ls -la windows-staging/
+        shell: bash
+
       - name: Upload Windows installers
         id: upload-windows
         uses: actions/upload-artifact@v4
         with:
           name: windows-installers
-          path: |
-            composeApp/build/compose/binaries/main/exe/*.exe
-            composeApp/build/compose/binaries/main/msi/*.msi
+          path: windows-staging/*
           if-no-files-found: error
           retention-days: 30
           compression-level: 6

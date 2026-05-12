@@ -153,10 +153,12 @@ fun StarredScreen(
 
                 else -> {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        StarredSearchBar(
-                            query = state.searchQuery,
-                            onQueryChange = { onAction(StarredReposAction.OnSearchChange(it)) },
-                        )
+                        if (state.starredRepositories.isNotEmpty()) {
+                            StarredSearchBar(
+                                query = state.searchQuery,
+                                onQueryChange = { onAction(StarredReposAction.OnSearchChange(it)) },
+                            )
+                        }
 
                         val filteredRepositories =
                             remember(state.starredRepositories, state.searchQuery) {

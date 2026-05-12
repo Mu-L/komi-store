@@ -747,18 +747,30 @@ class SearchViewModel(
             is SearchAction.OnHideRepository -> {
                 val repo = action.repo
                 viewModelScope.launch {
-                    hiddenReposRepository.hide(
-                        repoId = repo.id,
-                        repoName = repo.name,
-                        repoOwner = repo.owner.login,
-                        repoOwnerAvatarUrl = repo.owner.avatarUrl,
-                    )
+                    try {
+                        hiddenReposRepository.hide(
+                            repoId = repo.id,
+                            repoName = repo.name,
+                            repoOwner = repo.owner.login,
+                            repoOwnerAvatarUrl = repo.owner.avatarUrl,
+                        )
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Throwable) {
+                        logger.warn("Hide repository failed for ${repo.id}: ${e.message}")
+                    }
                 }
             }
 
             is SearchAction.OnUndoHideRepository -> {
                 viewModelScope.launch {
-                    hiddenReposRepository.unhide(action.repoId)
+                    try {
+                        hiddenReposRepository.unhide(action.repoId)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Throwable) {
+                        logger.warn("Unhide repository failed for ${action.repoId}: ${e.message}")
+                    }
                 }
             }
         }

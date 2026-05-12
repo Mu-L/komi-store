@@ -457,6 +457,13 @@ private fun MainState(
                     onHideClick = {
                         onAction(HomeAction.OnHideRepository(discoveryRepository.repository))
                     },
+                    onToggleSeen = {
+                        if (discoveryRepository.isSeen) {
+                            onAction(HomeAction.OnMarkAsUnseen(discoveryRepository.repository.id))
+                        } else {
+                            onAction(HomeAction.OnMarkAsSeen(discoveryRepository.repository))
+                        }
+                    },
                     modifier = Modifier.animateItem(),
                 )
             }

@@ -1110,4 +1110,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s vuelto a mostrar</string>
     <string name="hidden_repositories_unhidden_all_snackbar">Todos los repositorios mostrados</string>
     <string name="hidden_repositories_unhide_failure">No se pudo mostrar. Inténtalo de nuevo.</string>
+    <string name="open_on_github">Abrir en GitHub</string>
+    <string name="mark_as_viewed">Marcar como visto</string>
+    <string name="mark_as_unviewed">Marcar como no visto</string>
 </resources>

@@ -1138,4 +1138,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s এখন দৃশ্যমান</string>
     <string name="hidden_repositories_unhidden_all_snackbar">সব রিপোজিটরি দৃশ্যমান</string>
     <string name="hidden_repositories_unhide_failure">দৃশ্যমান করা যায়নি। আবার চেষ্টা করুন।</string>
+    <string name="open_on_github">GitHub-এ খুলুন</string>
+    <string name="mark_as_viewed">দেখা হিসেবে চিহ্নিত করুন</string>
+    <string name="mark_as_unviewed">অদেখা হিসেবে চিহ্নিত করুন</string>
 </resources>

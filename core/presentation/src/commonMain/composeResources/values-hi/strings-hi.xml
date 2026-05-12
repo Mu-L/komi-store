@@ -1149,4 +1149,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s फिर से दृश्यमान</string>
     <string name="hidden_repositories_unhidden_all_snackbar">सभी रिपॉजिटरी अब दृश्यमान</string>
     <string name="hidden_repositories_unhide_failure">दिखाया नहीं जा सका। पुनः प्रयास करें।</string>
+    <string name="open_on_github">GitHub पर खोलें</string>
+    <string name="mark_as_viewed">देखा हुआ चिह्नित करें</string>
+    <string name="mark_as_unviewed">अनदेखा चिह्नित करें</string>
 </resources>

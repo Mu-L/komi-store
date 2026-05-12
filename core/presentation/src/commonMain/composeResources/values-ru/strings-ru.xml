@@ -1131,4 +1131,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s снова виден</string>
     <string name="hidden_repositories_unhidden_all_snackbar">Все репозитории снова видны</string>
     <string name="hidden_repositories_unhide_failure">Не удалось показать. Повторите попытку.</string>
+    <string name="open_on_github">Открыть на GitHub</string>
+    <string name="mark_as_viewed">Отметить как просмотренный</string>
+    <string name="mark_as_unviewed">Снять отметку</string>
 </resources>

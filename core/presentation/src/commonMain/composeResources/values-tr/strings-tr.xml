@@ -1147,4 +1147,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s yeniden görünür</string>
     <string name="hidden_repositories_unhidden_all_snackbar">Tüm depolar yeniden görünür</string>
     <string name="hidden_repositories_unhide_failure">Gösterilemedi. Tekrar dene.</string>
+    <string name="open_on_github">GitHub\'da aç</string>
+    <string name="mark_as_viewed">Görüldü olarak işaretle</string>
+    <string name="mark_as_unviewed">Görülmedi olarak işaretle</string>
 </resources>

@@ -1150,4 +1150,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s di nuovo visibile</string>
     <string name="hidden_repositories_unhidden_all_snackbar">Tutti i repository di nuovo visibili</string>
     <string name="hidden_repositories_unhide_failure">Impossibile mostrare. Riprova.</string>
+    <string name="open_on_github">Apri su GitHub</string>
+    <string name="mark_as_viewed">Segna come visto</string>
+    <string name="mark_as_unviewed">Segna come non visto</string>
 </resources>

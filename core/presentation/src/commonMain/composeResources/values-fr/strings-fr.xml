@@ -1111,4 +1111,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s réaffiché</string>
     <string name="hidden_repositories_unhidden_all_snackbar">Tous les dépôts réaffichés</string>
     <string name="hidden_repositories_unhide_failure">Impossible d\'afficher. Réessayez.</string>
+    <string name="open_on_github">Ouvrir sur GitHub</string>
+    <string name="mark_as_viewed">Marquer comme vu</string>
+    <string name="mark_as_unviewed">Marquer comme non vu</string>
 </resources>

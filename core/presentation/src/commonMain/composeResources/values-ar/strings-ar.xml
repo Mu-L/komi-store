@@ -1162,4 +1162,7 @@
     <string name="hidden_repositories_unhidden_snackbar">تم إظهار %1$s</string>
     <string name="hidden_repositories_unhidden_all_snackbar">تم إظهار جميع المستودعات</string>
     <string name="hidden_repositories_unhide_failure">تعذر الإظهار. حاول مرة أخرى.</string>
+    <string name="open_on_github">فتح في GitHub</string>
+    <string name="mark_as_viewed">وضع علامة مشاهد</string>
+    <string name="mark_as_unviewed">إلغاء علامة مشاهد</string>
 </resources>

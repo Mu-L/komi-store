@@ -1107,4 +1107,7 @@
     <string name="hidden_repositories_unhidden_snackbar">%1$s 已重新显示</string>
     <string name="hidden_repositories_unhidden_all_snackbar">所有仓库已重新显示</string>
     <string name="hidden_repositories_unhide_failure">无法取消隐藏。请重试。</string>
+    <string name="open_on_github">在 GitHub 打开</string>
+    <string name="mark_as_viewed">标记为已查看</string>
+    <string name="mark_as_unviewed">取消已查看标记</string>
 </resources>

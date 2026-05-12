@@ -263,9 +263,13 @@
     <string name="home_view_details">Detayları Görüntüle</string>
 
     <string name="updated_just_now">şimdi güncellendi</string>
-    <string name="updated_hours_ago">%1$d saat önce güncellendi</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="other">%1$d saat önce güncellendi</item>
+    </plurals>
     <string name="updated_yesterday">dün güncellendi</string>
-    <string name="updated_days_ago">%1$d gün önce güncellendi</string>
+        <plurals name="updated_days_ago">
+        <item quantity="other">%1$d gün önce güncellendi</item>
+    </plurals>
     <string name="updated_on_date">%1$s tarihinde güncellendi</string>
 
     <string name="rate_limit_exceeded">Hız Sınırı Aşıldı</string>
@@ -291,9 +295,13 @@
     <string name="favourites">Favoriler</string>
 
     <string name="added_just_now">şimdi eklendi</string>
-    <string name="added_hours_ago">%1$d saat önce eklendi</string>
+        <plurals name="added_hours_ago">
+        <item quantity="other">%1$d saat önce eklendi</item>
+    </plurals>
     <string name="added_yesterday">dün eklendi</string>
-    <string name="added_days_ago">%1$d gün önce eklendi</string>
+        <plurals name="added_days_ago">
+        <item quantity="other">%1$d gün önce eklendi</item>
+    </plurals>
     <string name="added_on_date">%1$s tarihinde eklendi</string>
 
     <string name="starred_repositories">Yıldızlı Repolar</string>
@@ -361,9 +369,13 @@
     <string name="count_thousands">%1$dk</string>
 
     <string name="released_just_now">Az önce yayınlandı</string>
-    <string name="released_hours_ago">%1$d saat önce yayınlandı</string>
+        <plurals name="released_hours_ago">
+        <item quantity="other">%1$d saat önce yayınlandı</item>
+    </plurals>
     <string name="released_yesterday">Dün yayınlandı</string>
-    <string name="released_days_ago">%1$d gün önce yayınlandı</string>
+        <plurals name="released_days_ago">
+        <item quantity="other">%1$d gün önce yayınlandı</item>
+    </plurals>
     <string name="released_on_date">%1$s tarihinde yayınlandı</string>
 
     <string name="bottom_nav_home_title">Ana Sayfa</string>

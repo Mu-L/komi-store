@@ -264,9 +264,15 @@
     <string name="home_view_details">Vedi Dettagli</string>
 
     <string name="updated_just_now">appena aggiornata</string>
-    <string name="updated_hours_ago">aggiornata %1$d ora/e fa</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="one">aggiornata %1$d ora fa</item>
+        <item quantity="other">aggiornata %1$d ore fa</item>
+    </plurals>
     <string name="updated_yesterday">aggiornata ieri</string>
-    <string name="updated_days_ago">aggiornata %1$d giorno/i fa</string>
+        <plurals name="updated_days_ago">
+        <item quantity="one">aggiornata %1$d giorno fa</item>
+        <item quantity="other">aggiornata %1$d giorni fa</item>
+    </plurals>
     <string name="updated_on_date">aggiornata il %1$s</string>
 
     <string name="rate_limit_exceeded">Superato limite di richieste</string>
@@ -288,9 +294,15 @@
     <string name="favourites">Preferiti</string>
 
     <string name="added_just_now">aggiunto poco fa</string>
-    <string name="added_hours_ago">aggiunto %1$d ora(e) fa</string>
+        <plurals name="added_hours_ago">
+        <item quantity="one">aggiunto %1$d ora fa</item>
+        <item quantity="other">aggiunto %1$d ore fa</item>
+    </plurals>
     <string name="added_yesterday">aggiunto ieri</string>
-    <string name="added_days_ago">aggiunto %1$d giorno(i) fa</string>
+        <plurals name="added_days_ago">
+        <item quantity="one">aggiunto %1$d giorno fa</item>
+        <item quantity="other">aggiunto %1$d giorni fa</item>
+    </plurals>
     <string name="added_on_date">aggiunto il %1$s</string>
 
     <string name="starred_repositories">Repository preferiti</string>
@@ -360,9 +372,15 @@
     <string name="count_thousands">%1$dk</string>
 
     <string name="released_just_now">Pubblicato ora</string>
-    <string name="released_hours_ago">Pubblicato %1$d ora/e fa</string>
+        <plurals name="released_hours_ago">
+        <item quantity="one">Pubblicato %1$d ora fa</item>
+        <item quantity="other">Pubblicato %1$d ore fa</item>
+    </plurals>
     <string name="released_yesterday">Pubblicato ieri</string>
-    <string name="released_days_ago">Pubblicato %1$d giorno/i fa</string>
+        <plurals name="released_days_ago">
+        <item quantity="one">Pubblicato %1$d giorno fa</item>
+        <item quantity="other">Pubblicato %1$d giorni fa</item>
+    </plurals>
     <string name="released_on_date">Pubblicato il %1$s</string>
 
     <string name="bottom_nav_home_title">Home</string>

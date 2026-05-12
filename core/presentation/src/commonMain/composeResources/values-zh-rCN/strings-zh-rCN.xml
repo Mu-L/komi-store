@@ -212,9 +212,13 @@
     <string name="home_view_details">查看详情</string>
 
     <string name="updated_just_now">刚刚更新</string>
-    <string name="updated_hours_ago">%1$d 小时前更新</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="other">%1$d 小时前更新</item>
+    </plurals>
     <string name="updated_yesterday">昨天更新</string>
-    <string name="updated_days_ago">%1$d 天前更新</string>
+        <plurals name="updated_days_ago">
+        <item quantity="other">%1$d 天前更新</item>
+    </plurals>
     <string name="updated_on_date">%1$s 更新</string>
 
     <string name="rate_limit_exceeded">请求次数已达上限</string>
@@ -240,9 +244,13 @@
     <string name="favourites">收藏</string>
 
     <string name="added_just_now">刚刚添加</string>
-    <string name="added_hours_ago">%1$d 小时前添加</string>
+        <plurals name="added_hours_ago">
+        <item quantity="other">%1$d 小时前添加</item>
+    </plurals>
     <string name="added_yesterday">昨天添加</string>
-    <string name="added_days_ago">%1$d 天前添加</string>
+        <plurals name="added_days_ago">
+        <item quantity="other">%1$d 天前添加</item>
+    </plurals>
     <string name="added_on_date">%1$s 添加</string>
 
     <string name="starred_repositories">已收藏的仓库</string>
@@ -312,9 +320,13 @@
     <string name="count_thousands">%1$dk</string>
 
     <string name="released_just_now">刚刚发布</string>
-    <string name="released_hours_ago">%1$d 小时前发布</string>
+        <plurals name="released_hours_ago">
+        <item quantity="other">%1$d 小时前发布</item>
+    </plurals>
     <string name="released_yesterday">昨天发布</string>
-    <string name="released_days_ago">%1$d 天前发布</string>
+        <plurals name="released_days_ago">
+        <item quantity="other">%1$d 天前发布</item>
+    </plurals>
     <string name="released_on_date">发布于 %1$s</string>
 
     <string name="bottom_nav_home_title">首页</string>

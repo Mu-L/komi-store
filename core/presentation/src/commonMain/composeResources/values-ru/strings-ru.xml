@@ -229,9 +229,19 @@
     <string name="home_view_details">Подробнее</string>
 
     <string name="updated_just_now">обновлено только что</string>
-    <string name="updated_hours_ago">обновлено %1$d ч. назад</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="one">обновлено %1$d час назад</item>
+        <item quantity="few">обновлено %1$d часа назад</item>
+        <item quantity="many">обновлено %1$d часов назад</item>
+        <item quantity="other">обновлено %1$d часа назад</item>
+    </plurals>
     <string name="updated_yesterday">обновлено вчера</string>
-    <string name="updated_days_ago">обновлено %1$d дн. назад</string>
+        <plurals name="updated_days_ago">
+        <item quantity="one">обновлено %1$d день назад</item>
+        <item quantity="few">обновлено %1$d дня назад</item>
+        <item quantity="many">обновлено %1$d дней назад</item>
+        <item quantity="other">обновлено %1$d дня назад</item>
+    </plurals>
     <string name="updated_on_date">обновлено %1$s</string>
 
     <string name="rate_limit_exceeded">Превышен лимит запросов</string>
@@ -257,9 +267,19 @@
     <string name="favourites">Избранное</string>
 
     <string name="added_just_now">только что добавлено</string>
-    <string name="added_hours_ago">добавлено %1$d час(ов) назад</string>
+        <plurals name="added_hours_ago">
+        <item quantity="one">добавлено %1$d час назад</item>
+        <item quantity="few">добавлено %1$d часа назад</item>
+        <item quantity="many">добавлено %1$d часов назад</item>
+        <item quantity="other">добавлено %1$d часа назад</item>
+    </plurals>
     <string name="added_yesterday">добавлено вчера</string>
-    <string name="added_days_ago">добавлено %1$d дн. назад</string>
+        <plurals name="added_days_ago">
+        <item quantity="one">добавлено %1$d день назад</item>
+        <item quantity="few">добавлено %1$d дня назад</item>
+        <item quantity="many">добавлено %1$d дней назад</item>
+        <item quantity="other">добавлено %1$d дня назад</item>
+    </plurals>
     <string name="added_on_date">добавлено %1$s</string>
 
     <string name="starred_repositories">Избранные репозитории</string>
@@ -329,9 +349,19 @@
     <string name="count_thousands">%1$dk</string>
 
     <string name="released_just_now">Опубликовано только что</string>
-    <string name="released_hours_ago">Опубликовано %1$d час(ов) назад</string>
+        <plurals name="released_hours_ago">
+        <item quantity="one">Опубликовано %1$d час назад</item>
+        <item quantity="few">Опубликовано %1$d часа назад</item>
+        <item quantity="many">Опубликовано %1$d часов назад</item>
+        <item quantity="other">Опубликовано %1$d часа назад</item>
+    </plurals>
     <string name="released_yesterday">Опубликовано вчера</string>
-    <string name="released_days_ago">Опубликовано %1$d день(дней) назад</string>
+        <plurals name="released_days_ago">
+        <item quantity="one">Опубликовано %1$d день назад</item>
+        <item quantity="few">Опубликовано %1$d дня назад</item>
+        <item quantity="many">Опубликовано %1$d дней назад</item>
+        <item quantity="other">Опубликовано %1$d дня назад</item>
+    </plurals>
     <string name="released_on_date">Опубликовано %1$s</string>
 
     <string name="bottom_nav_home_title">Главная</string>

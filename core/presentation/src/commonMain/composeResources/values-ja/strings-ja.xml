@@ -211,9 +211,13 @@
     <string name="home_view_details">詳細を見る</string>
 
     <string name="updated_just_now">たった今更新</string>
-    <string name="updated_hours_ago">%1$d時間前に更新</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="other">%1$d時間前に更新</item>
+    </plurals>
     <string name="updated_yesterday">昨日更新</string>
-    <string name="updated_days_ago">%1$d日前に更新</string>
+        <plurals name="updated_days_ago">
+        <item quantity="other">%1$d日前に更新</item>
+    </plurals>
     <string name="updated_on_date">%1$s に更新</string>
 
     <string name="rate_limit_exceeded">レート制限を超えました</string>
@@ -239,9 +243,13 @@
     <string name="favourites">お気に入り</string>
 
     <string name="added_just_now">たった今追加されました</string>
-    <string name="added_hours_ago">%1$d時間前に追加</string>
+        <plurals name="added_hours_ago">
+        <item quantity="other">%1$d時間前に追加</item>
+    </plurals>
     <string name="added_yesterday">昨日追加</string>
-    <string name="added_days_ago">%1$d日前に追加</string>
+        <plurals name="added_days_ago">
+        <item quantity="other">%1$d日前に追加</item>
+    </plurals>
     <string name="added_on_date">%1$s に追加</string>
 
     <string name="starred_repositories">スター付きリポジトリ</string>
@@ -311,9 +319,13 @@
     <string name="count_thousands">%1$dk</string>
 
     <string name="released_just_now">たった今リリース</string>
-    <string name="released_hours_ago">%1$d時間前にリリース</string>
+        <plurals name="released_hours_ago">
+        <item quantity="other">%1$d時間前にリリース</item>
+    </plurals>
     <string name="released_yesterday">昨日リリース</string>
-    <string name="released_days_ago">%1$d日前にリリース</string>
+        <plurals name="released_days_ago">
+        <item quantity="other">%1$d日前にリリース</item>
+    </plurals>
     <string name="released_on_date">%1$sにリリース</string>
 
     <string name="bottom_nav_home_title">ホーム</string>

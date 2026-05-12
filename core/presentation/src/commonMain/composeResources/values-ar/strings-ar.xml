@@ -315,9 +315,13 @@
     <string name="home_view_details">عرض التفاصيل</string>
 
     <string name="updated_just_now">تم التحديث للتو</string>
-    <string name="updated_hours_ago">تم التحديث منذ %1$d ساعة</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="other">تم التحديث منذ %1$d ساعة</item>
+    </plurals>
     <string name="updated_yesterday">تم التحديث أمس</string>
-    <string name="updated_days_ago">تم التحديث منذ %1$d يوم</string>
+        <plurals name="updated_days_ago">
+        <item quantity="other">تم التحديث منذ %1$d يوم</item>
+    </plurals>
     <string name="updated_on_date">تم التحديث في %1$s</string>
 
     <string name="rate_limit_exceeded">تم تجاوز حد الطلبات</string>
@@ -343,9 +347,13 @@
     <string name="favourites">المفضلة</string>
 
     <string name="added_just_now">أُضيف للتو</string>
-    <string name="added_hours_ago">أُضيف منذ %1$d ساعة</string>
+        <plurals name="added_hours_ago">
+        <item quantity="other">أُضيف منذ %1$d ساعة</item>
+    </plurals>
     <string name="added_yesterday">أُضيف أمس</string>
-    <string name="added_days_ago">أُضيف منذ %1$d يوم</string>
+        <plurals name="added_days_ago">
+        <item quantity="other">أُضيف منذ %1$d يوم</item>
+    </plurals>
     <string name="added_on_date">أُضيف في %1$s</string>
 
     <string name="starred_repositories">المستودعات المميزة بنجمة</string>
@@ -413,9 +421,13 @@
     <string name="count_thousands">%1$d ألف</string>
 
     <string name="released_just_now">صدر للتو</string>
-    <string name="released_hours_ago">صدر منذ %1$d ساعة</string>
+        <plurals name="released_hours_ago">
+        <item quantity="other">صدر منذ %1$d ساعة</item>
+    </plurals>
     <string name="released_yesterday">صدر أمس</string>
-    <string name="released_days_ago">صدر منذ %1$d يوم</string>
+        <plurals name="released_days_ago">
+        <item quantity="other">صدر منذ %1$d يوم</item>
+    </plurals>
     <string name="released_on_date">صدر في %1$s</string>
 
     <string name="bottom_nav_home_title">الرئيسية</string>

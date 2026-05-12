@@ -354,9 +354,15 @@
     <string name="home_view_details">View Details</string>
 
     <string name="updated_just_now">updated just now</string>
-    <string name="updated_hours_ago">updated %1$d hour(s) ago</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="one">updated %1$d hour ago</item>
+        <item quantity="other">updated %1$d hours ago</item>
+    </plurals>
     <string name="updated_yesterday">updated yesterday</string>
-    <string name="updated_days_ago">updated %1$d day(s) ago</string>
+        <plurals name="updated_days_ago">
+        <item quantity="one">updated %1$d day ago</item>
+        <item quantity="other">updated %1$d days ago</item>
+    </plurals>
     <string name="updated_on_date">updated on %1$s</string>
 
     <string name="rate_limit_exceeded">Rate Limit Exceeded</string>
@@ -387,9 +393,15 @@
     <string name="profile_recently_viewed_description">Repositories you have visited</string>
 
     <string name="added_just_now">added just now</string>
-    <string name="added_hours_ago">added %1$d hour(s) ago</string>
+        <plurals name="added_hours_ago">
+        <item quantity="one">added %1$d hour ago</item>
+        <item quantity="other">added %1$d hours ago</item>
+    </plurals>
     <string name="added_yesterday">added yesterday</string>
-    <string name="added_days_ago">added %1$d day(s) ago</string>
+        <plurals name="added_days_ago">
+        <item quantity="one">added %1$d day ago</item>
+        <item quantity="other">added %1$d days ago</item>
+    </plurals>
     <string name="added_on_date">added on %1$s</string>
 
     <string name="starred_repositories">Starred Repositories</string>
@@ -457,9 +469,15 @@
     <string name="count_thousands">%1$dk</string>
 
     <string name="released_just_now">Released just now</string>
-    <string name="released_hours_ago">Released %1$d hour(s) ago</string>
+        <plurals name="released_hours_ago">
+        <item quantity="one">Released %1$d hour ago</item>
+        <item quantity="other">Released %1$d hours ago</item>
+    </plurals>
     <string name="released_yesterday">Released yesterday</string>
-    <string name="released_days_ago">Released %1$d day(s) ago</string>
+        <plurals name="released_days_ago">
+        <item quantity="one">Released %1$d day ago</item>
+        <item quantity="other">Released %1$d days ago</item>
+    </plurals>
     <string name="released_on_date">Released on %1$s</string>
 
     <string name="bottom_nav_home_title">Home</string>

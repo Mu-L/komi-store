@@ -228,9 +228,19 @@
     <string name="home_view_details">Zobacz szczegóły</string>
 
     <string name="updated_just_now">zaktualizowano przed chwilą</string>
-    <string name="updated_hours_ago">zaktualizowano %1$d godz. temu</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="one">zaktualizowano %1$d godzinę temu</item>
+        <item quantity="few">zaktualizowano %1$d godziny temu</item>
+        <item quantity="many">zaktualizowano %1$d godzin temu</item>
+        <item quantity="other">zaktualizowano %1$d godzin temu</item>
+    </plurals>
     <string name="updated_yesterday">zaktualizowano wczoraj</string>
-    <string name="updated_days_ago">zaktualizowano %1$d dni temu</string>
+        <plurals name="updated_days_ago">
+        <item quantity="one">zaktualizowano %1$d dzień temu</item>
+        <item quantity="few">zaktualizowano %1$d dni temu</item>
+        <item quantity="many">zaktualizowano %1$d dni temu</item>
+        <item quantity="other">zaktualizowano %1$d dni temu</item>
+    </plurals>
     <string name="updated_on_date">zaktualizowano %1$s</string>
 
     <string name="rate_limit_exceeded">Limit zapytań przekroczony</string>
@@ -256,9 +266,19 @@
     <string name="favourites">Ulubione</string>
 
     <string name="added_just_now">dodano przed chwilą</string>
-    <string name="added_hours_ago">dodano %1$d godz. temu</string>
+        <plurals name="added_hours_ago">
+        <item quantity="one">dodano %1$d godzinę temu</item>
+        <item quantity="few">dodano %1$d godziny temu</item>
+        <item quantity="many">dodano %1$d godzin temu</item>
+        <item quantity="other">dodano %1$d godzin temu</item>
+    </plurals>
     <string name="added_yesterday">dodano wczoraj</string>
-    <string name="added_days_ago">dodano %1$d dni temu</string>
+        <plurals name="added_days_ago">
+        <item quantity="one">dodano %1$d dzień temu</item>
+        <item quantity="few">dodano %1$d dni temu</item>
+        <item quantity="many">dodano %1$d dni temu</item>
+        <item quantity="other">dodano %1$d dni temu</item>
+    </plurals>
     <string name="added_on_date">dodano %1$s</string>
 
     <string name="starred_repositories">Oznaczone gwiazdką repozytoria</string>
@@ -327,9 +347,19 @@
     <string name="count_millions">%1$dM</string>
     <string name="count_thousands">%1$dk</string>
     <string name="released_just_now">Wydano przed chwilą</string>
-    <string name="released_hours_ago">Wydano %1$d godzin(y) temu</string>
+        <plurals name="released_hours_ago">
+        <item quantity="one">Wydano %1$d godzinę temu</item>
+        <item quantity="few">Wydano %1$d godziny temu</item>
+        <item quantity="many">Wydano %1$d godzin temu</item>
+        <item quantity="other">Wydano %1$d godzin temu</item>
+    </plurals>
     <string name="released_yesterday">Wydano wczoraj</string>
-    <string name="released_days_ago">Wydano %1$d dzień/dni temu</string>
+        <plurals name="released_days_ago">
+        <item quantity="one">Wydano %1$d dzień temu</item>
+        <item quantity="few">Wydano %1$d dni temu</item>
+        <item quantity="many">Wydano %1$d dni temu</item>
+        <item quantity="other">Wydano %1$d dni temu</item>
+    </plurals>
     <string name="released_on_date">Wydano %1$s</string>
 
     <string name="bottom_nav_home_title">Strona główna</string>

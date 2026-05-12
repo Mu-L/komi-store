@@ -264,9 +264,13 @@
     <string name="home_view_details">বিস্তারিত দেখুন</string>
 
     <string name="updated_just_now">এইমাত্র আপডেট হয়েছে</string>
-    <string name="updated_hours_ago">%1$d ঘণ্টা আগে আপডেট হয়েছে</string>
+        <plurals name="updated_hours_ago">
+        <item quantity="other">%1$d ঘণ্টা আগে আপডেট হয়েছে</item>
+    </plurals>
     <string name="updated_yesterday">গতকাল আপডেট হয়েছে</string>
-    <string name="updated_days_ago">%1$d দিন আগে আপডেট হয়েছে</string>
+        <plurals name="updated_days_ago">
+        <item quantity="other">%1$d দিন আগে আপডেট হয়েছে</item>
+    </plurals>
     <string name="updated_on_date">%1$s তারিখে আপডেট হয়েছে</string>
 
     <string name="rate_limit_exceeded">রেট লিমিট অতিক্রম করেছে</string>
@@ -292,9 +296,13 @@
     <string name="favourites">প্রিয়</string>
 
     <string name="added_just_now">এইমাত্র যোগ করা হয়েছে</string>
-    <string name="added_hours_ago">%1$d ঘণ্টা আগে যোগ করা হয়েছে</string>
+        <plurals name="added_hours_ago">
+        <item quantity="other">%1$d ঘণ্টা আগে যোগ করা হয়েছে</item>
+    </plurals>
     <string name="added_yesterday">গতকাল যোগ করা হয়েছে</string>
-    <string name="added_days_ago">%1$d দিন আগে যোগ করা হয়েছে</string>
+        <plurals name="added_days_ago">
+        <item quantity="other">%1$d দিন আগে যোগ করা হয়েছে</item>
+    </plurals>
     <string name="added_on_date">%1$s তারিখে যোগ করা হয়েছে</string>
 
     <string name="starred_repositories">স্টার করা রিপোজিটরি</string>
@@ -364,9 +372,13 @@
     <string name="count_thousands">%1$dk</string>
 
     <string name="released_just_now">এইমাত্র প্রকাশিত</string>
-    <string name="released_hours_ago">%1$d ঘণ্টা আগে প্রকাশিত</string>
+        <plurals name="released_hours_ago">
+        <item quantity="other">%1$d ঘণ্টা আগে প্রকাশিত</item>
+    </plurals>
     <string name="released_yesterday">গতকাল প্রকাশিত</string>
-    <string name="released_days_ago">%1$d দিন আগে প্রকাশিত</string>
+        <plurals name="released_days_ago">
+        <item quantity="other">%1$d দিন আগে প্রকাশিত</item>
+    </plurals>
     <string name="released_on_date">%1$s তারিখে প্রকাশিত</string>
 
     <string name="bottom_nav_home_title">হোম</string>

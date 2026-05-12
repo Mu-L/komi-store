@@ -608,6 +608,9 @@
     <string name="seen_history_cleared">Historia przeglądania wyczyszczona</string>
     <string name="seen_badge">Przeglądane</string>
     <string name="self_owned_badge">Jesteś właścicielem tego repo</string>
+    <string name="hide_repository">Ukryj repozytorium</string>
+    <string name="repository_hidden">Repozytorium ukryte</string>
+    <string name="undo_hide">Cofnij</string>
     <string name="privacy_section">Prywatność</string>
     <string name="telemetry_title">Pomóż ulepszyć wyszukiwanie</string>
     <string name="telemetry_description">Udostępniaj dane o użyciu (wyszukiwania, instalacje, interakcje) powiązane z resetowalnym identyfikatorem analitycznym. Żadne dane konta nie są udostępniane.</string>

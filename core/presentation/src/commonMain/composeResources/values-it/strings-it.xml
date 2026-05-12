@@ -644,6 +644,9 @@
     <string name="seen_history_cleared">Cronologia visualizzazioni cancellata</string>
     <string name="seen_badge">Visualizzato</string>
     <string name="self_owned_badge">Sei il proprietario di questo repo</string>
+    <string name="hide_repository">Nascondi repository</string>
+    <string name="repository_hidden">Repository nascosto</string>
+    <string name="undo_hide">Annulla</string>
     <string name="privacy_section">Privacy</string>
     <string name="telemetry_title">Aiuta a migliorare la ricerca</string>
     <string name="telemetry_description">Condividi dati di utilizzo (ricerche, installazioni, interazioni) associati a un ID analitico ripristinabile. Nessun dettaglio dell'account viene condiviso.</string>

@@ -642,6 +642,9 @@
     <string name="seen_history_cleared">Görüntüleme geçmişi temizlendi</string>
     <string name="seen_badge">Görüntülendi</string>
     <string name="self_owned_badge">Bu deponun sahibisin</string>
+    <string name="hide_repository">Depoyu gizle</string>
+    <string name="repository_hidden">Depo gizlendi</string>
+    <string name="undo_hide">Geri al</string>
     <string name="privacy_section">Gizlilik</string>
     <string name="telemetry_title">Aramayı iyileştirmeye yardım et</string>
     <string name="telemetry_description">Sıfırlanabilir bir analiz kimliğiyle ilişkilendirilmiş kullanım verilerini (aramalar, yüklemeler, etkileşimler) paylaş. Hesap ayrıntıları paylaşılmaz.</string>

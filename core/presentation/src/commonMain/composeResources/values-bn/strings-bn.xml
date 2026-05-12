@@ -644,6 +644,9 @@
     <string name="seen_history_cleared">দেখার ইতিহাস মুছে ফেলা হয়েছে</string>
     <string name="seen_badge">দেখা হয়েছে</string>
     <string name="self_owned_badge">এই রিপো আপনার</string>
+    <string name="hide_repository">রিপোজিটরি লুকান</string>
+    <string name="repository_hidden">রিপোজিটরি লুকানো হয়েছে</string>
+    <string name="undo_hide">পূর্বাবস্থা</string>
     <string name="privacy_section">গোপনীয়তা</string>
     <string name="telemetry_title">অনুসন্ধান উন্নত করতে সহায়তা করুন</string>
     <string name="telemetry_description">পুনরায় সেট করা যায় এমন একটি বিশ্লেষণ আইডির সাথে যুক্ত ব্যবহার ডেটা (অনুসন্ধান, ইনস্টল, ইন্টারঅ্যাকশন) শেয়ার করুন। অ্যাকাউন্ট বিবরণ শেয়ার করা হয় না।</string>

@@ -608,6 +608,9 @@
     <string name="seen_history_cleared">История просмотров очищена</string>
     <string name="seen_badge">Просмотрено</string>
     <string name="self_owned_badge">Ваш репозиторий</string>
+    <string name="hide_repository">Скрыть репозиторий</string>
+    <string name="repository_hidden">Репозиторий скрыт</string>
+    <string name="undo_hide">Отменить</string>
     <string name="privacy_section">Конфиденциальность</string>
     <string name="telemetry_title">Помочь улучшить поиск</string>
     <string name="telemetry_description">Отправлять данные об использовании (поиски, установки, взаимодействия), связанные со сбрасываемым идентификатором аналитики. Данные учётной записи не передаются.</string>

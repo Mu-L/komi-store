@@ -771,6 +771,9 @@
     <string name="seen_history_cleared">Seen history cleared</string>
     <string name="seen_badge">Viewed</string>
     <string name="self_owned_badge">You own this repo</string>
+    <string name="hide_repository">Hide repository</string>
+    <string name="repository_hidden">Repository hidden</string>
+    <string name="undo_hide">Undo</string>
 
     <!-- Privacy / telemetry -->
     <string name="privacy_section">Privacy</string>

@@ -160,8 +160,12 @@ sealed interface DetailsAction {
      */
     data object OnAcknowledgeChannelChipCoachmark : DetailsAction
 
-    /** Flip the "Show all platforms" picker setting (persisted globally). */
-    data object OnToggleShowAllPlatforms : DetailsAction
+    /**
+     * Flip the "Show all platforms" picker setting (persisted globally).
+     * Carries the explicit target value so rapid back-and-forth toggles
+     * don't race against a stale read of the in-memory state.
+     */
+    data class OnToggleShowAllPlatforms(val enabled: Boolean) : DetailsAction
 
     /**
      * Download a non-current-platform asset for transfer to another
@@ -170,6 +174,5 @@ sealed interface DetailsAction {
      */
     data class OnDownloadForTransfer(
         val assetUrl: String,
-        val assetName: String,
     ) : DetailsAction
 }

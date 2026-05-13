@@ -494,11 +494,10 @@ class DetailsViewModel(
                 acknowledgeChannelChipCoachmark()
             }
 
-            DetailsAction.OnToggleShowAllPlatforms -> {
-                val next = !_state.value.showAllPlatforms
+            is DetailsAction.OnToggleShowAllPlatforms -> {
                 viewModelScope.launch {
                     try {
-                        tweaksRepository.setShowAllPlatforms(next)
+                        tweaksRepository.setShowAllPlatforms(action.enabled)
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Throwable) {

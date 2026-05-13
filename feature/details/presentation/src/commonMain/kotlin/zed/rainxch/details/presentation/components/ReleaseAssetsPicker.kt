@@ -76,9 +76,13 @@ fun ReleaseAssetsPicker(
     showAllPlatforms: Boolean = false,
     crossPlatformAssets: List<GithubAsset> = emptyList(),
 ) {
-    val isPickerEnabled by remember(assetsList, crossPlatformAssets, showAllPlatforms) {
+    // Decouple from `showAllPlatforms`: the toggle lives INSIDE the sheet,
+    // so disabling the open-card whenever the current branch is empty
+    // would lock the user out of flipping the setting back. Picker stays
+    // openable whenever either source has anything to show.
+    val isPickerEnabled by remember(assetsList, crossPlatformAssets) {
         derivedStateOf {
-            if (showAllPlatforms) crossPlatformAssets.isNotEmpty() else assetsList.isNotEmpty()
+            assetsList.isNotEmpty() || crossPlatformAssets.isNotEmpty()
         }
     }
 
@@ -92,9 +96,11 @@ fun ReleaseAssetsPicker(
         onDismiss = { onAction(DetailsAction.ToggleReleaseAssetsPicker) },
         onSelect = { onAction(DetailsAction.SelectDownloadAsset(it)) },
         onUnpin = { onAction(DetailsAction.UnpinPreferredVariant) },
-        onToggleShowAllPlatforms = { onAction(DetailsAction.OnToggleShowAllPlatforms) },
+        onToggleShowAllPlatforms = { enabled ->
+            onAction(DetailsAction.OnToggleShowAllPlatforms(enabled))
+        },
         onDownloadForTransfer = { asset ->
-            onAction(DetailsAction.OnDownloadForTransfer(asset.downloadUrl, asset.name))
+            onAction(DetailsAction.OnDownloadForTransfer(asset.downloadUrl))
         },
     )
 
@@ -152,7 +158,7 @@ private fun ReleaseAssetsItemsPicker(
     onDismiss: () -> Unit,
     onSelect: (GithubAsset) -> Unit,
     onUnpin: () -> Unit,
-    onToggleShowAllPlatforms: () -> Unit,
+    onToggleShowAllPlatforms: (Boolean) -> Unit,
     onDownloadForTransfer: (GithubAsset) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -231,7 +237,7 @@ private fun ReleaseAssetsItemsPicker(
                 Row(
                     modifier =
                         Modifier
-                            .clickable(onClick = onToggleShowAllPlatforms)
+                            .clickable(onClick = { onToggleShowAllPlatforms(!showAllPlatforms) })
                             .padding(horizontal = 16.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -249,30 +255,31 @@ private fun ReleaseAssetsItemsPicker(
                     )
                     androidx.compose.material3.Switch(
                         checked = showAllPlatforms,
-                        onCheckedChange = { onToggleShowAllPlatforms() },
+                        onCheckedChange = onToggleShowAllPlatforms,
                     )
                 }
             }
 
+            // Hoisted out of the LazyListScope below: `LazyColumn { … }`
+                // body is not a @Composable context, so `remember` calls have
+                // to live in the enclosing Column instead.
+            val groups = remember(crossPlatformAssets) {
+                crossPlatformAssets
+                    .groupBy {
+                        zed.rainxch.core.domain.util.assetPlatformOf(it.name)
+                    }
+                    .filterKeys { it != null }
+                    .mapKeys { it.key!! }
+            }
+            val installableIds = remember(assetsList) {
+                assetsList.map { it.id }.toSet()
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (showAllPlatforms) {
-                    // Group all known-platform assets by detected OS,
-                    // render one collapsible-feeling Card per platform
-                    // with a single header chip telling the user whether
-                    // the section installs locally or saves for transfer.
-                    // One hint per section >> one hint per asset row
-                    // (which scaled badly: 10 assets = 10 redundant lines).
-                    val groups: Map<zed.rainxch.core.domain.model.DiscoveryPlatform, List<GithubAsset>> =
-                        crossPlatformAssets
-                            .groupBy {
-                                zed.rainxch.core.domain.util.assetPlatformOf(it.name)
-                            }
-                            .filterKeys { it != null }
-                            .mapKeys { it.key!! }
                     if (groups.isEmpty()) {
                         item {
                             Text(
@@ -286,7 +293,6 @@ private fun ReleaseAssetsItemsPicker(
                     } else {
                         // Order: current-platform section first (it's the
                         // primary install target), then the others.
-                        val installableIds = assetsList.map { it.id }.toSet()
                         val sectionOrder =
                             listOf(
                                 zed.rainxch.core.domain.model.DiscoveryPlatform.Android to Res.string.platform_section_android,
@@ -305,8 +311,10 @@ private fun ReleaseAssetsItemsPicker(
                                 PlatformSectionCard(
                                     platformLabel = stringResource(labelRes),
                                     isCurrentDevice = isCurrentDevice,
+                                    installableIds = installableIds,
                                     assets = assets,
                                     selectedAsset = selectedAsset,
+                                    pinnedVariant = pinnedVariant,
                                     onAssetClick = { asset ->
                                         if (asset.id in installableIds) {
                                             onSelect(asset)
@@ -485,8 +493,10 @@ private fun ReleaseAssetsPickerItemPreview() {
 private fun PlatformSectionCard(
     platformLabel: String,
     isCurrentDevice: Boolean,
+    installableIds: Set<Long>,
     assets: List<GithubAsset>,
     selectedAsset: GithubAsset?,
+    pinnedVariant: String?,
     onAssetClick: (GithubAsset) -> Unit,
 ) {
     OutlinedCard(
@@ -534,12 +544,16 @@ private fun PlatformSectionCard(
         )
 
         assets.forEachIndexed { index, asset ->
+            val isInstallableHere = asset.id in installableIds
+            val variantTag = AssetVariant.extract(asset.name)
+            val isPinned =
+                isInstallableHere &&
+                    !pinnedVariant.isNullOrBlank() &&
+                    variantTag?.equals(pinnedVariant, ignoreCase = true) == true
             ReleaseAssetItem(
                 asset = asset,
-                isSelected =
-                    isCurrentDevice &&
-                        asset.id == selectedAsset?.id,
-                isPinned = false,
+                isSelected = isInstallableHere && asset.id == selectedAsset?.id,
+                isPinned = isPinned,
                 onClick = { onAssetClick(asset) },
                 modifier = Modifier.fillMaxWidth(),
             )

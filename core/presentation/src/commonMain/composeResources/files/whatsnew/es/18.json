@@ -15,7 +15,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "Los chips de plataforma en detalles del repo ahora abren Search filtrado por esa plataforma — antes no hacían nada."
+        "Los chips de plataforma en detalles del repo ahora abren Search filtrado por esa plataforma — antes no hacían nada.",
+        "El botón de búsqueda del teclado ahora activa la búsqueda en Android 12 con IMEs chinos."
       ]
     }
   ]

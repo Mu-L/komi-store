@@ -15,7 +15,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "Platform chips on repo details now open Search filtered by that platform — was a no-op."
+        "Platform chips on repo details now open Search filtered by that platform — was a no-op.",
+        "Keyboard search button now triggers search on Android 12 across Chinese IMEs."
       ]
     }
   ]

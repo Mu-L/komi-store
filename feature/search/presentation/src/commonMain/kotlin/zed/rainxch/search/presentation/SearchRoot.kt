@@ -955,6 +955,10 @@ private fun SearchTopbar(
             keyboardActions =
                 KeyboardActions(
                     onSearch = { onAction(SearchAction.OnSearchImeClick) },
+                    onDone = { onAction(SearchAction.OnSearchImeClick) },
+                    onGo = { onAction(SearchAction.OnSearchImeClick) },
+                    onNext = { onAction(SearchAction.OnSearchImeClick) },
+                    onSend = { onAction(SearchAction.OnSearchImeClick) },
                 ),
             singleLine = true,
             colors =

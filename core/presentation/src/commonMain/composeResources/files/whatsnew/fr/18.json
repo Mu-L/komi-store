@@ -15,7 +15,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "Les puces de plateforme dans les détails d'un dépôt ouvrent maintenant Search filtré par cette plateforme — auparavant inactives."
+        "Les puces de plateforme dans les détails d'un dépôt ouvrent maintenant Search filtré par cette plateforme — auparavant inactives.",
+        "Le bouton de recherche du clavier déclenche maintenant la recherche sur Android 12 avec les IME chinois."
       ]
     }
   ]

@@ -15,7 +15,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "I chip di piattaforma nei dettagli del repo ora aprono Search filtrato per quella piattaforma — prima erano inerti."
+        "I chip di piattaforma nei dettagli del repo ora aprono Search filtrato per quella piattaforma — prima erano inerti.",
+        "Il pulsante di ricerca della tastiera ora attiva la ricerca su Android 12 con gli IME cinesi."
       ]
     }
   ]

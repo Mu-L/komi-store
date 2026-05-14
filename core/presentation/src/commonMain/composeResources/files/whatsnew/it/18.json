@@ -9,6 +9,12 @@
       "bullets": [
         "Installazione macOS con Homebrew — `brew install --cask github-store` dal nostro nuovo tap."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Disattiva 'Hide seen' da Home — un tap per ripristinare quando il filtro svuota la griglia."
+      ]
     }
   ]
 }

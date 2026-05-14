@@ -9,6 +9,12 @@
       "bullets": [
         "التثبيت على macOS عبر Homebrew — `brew install --cask github-store` من المستودع الجديد."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "تعطيل 'Hide seen' من الرئيسية — نقرة واحدة لإعادة الضبط عند إفراغ الفلتر للشبكة."
+      ]
     }
   ]
 }

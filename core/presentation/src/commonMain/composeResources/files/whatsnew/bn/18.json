@@ -9,6 +9,12 @@
       "bullets": [
         "Homebrew দিয়ে macOS-এ ইনস্টল করুন — আমাদের নতুন tap থেকে `brew install --cask github-store`।"
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Home থেকে 'Hide seen' বন্ধ করুন — ফিল্টার গ্রিড খালি করলে এক ট্যাপে রিসেট।"
+      ]
     }
   ]
 }

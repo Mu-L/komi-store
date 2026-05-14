@@ -9,6 +9,12 @@
       "bullets": [
         "通过 Homebrew 在 macOS 上安装 — 从我们的新 tap 运行 `brew install --cask github-store`。"
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "从 Home 关闭 'Hide seen' — 过滤器清空网格时,一键重置。"
+      ]
     }
   ]
 }

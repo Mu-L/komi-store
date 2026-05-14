@@ -9,6 +9,12 @@
       "bullets": [
         "Установка на macOS через Homebrew — `brew install --cask github-store` из нашего нового tap."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Отключить 'Hide seen' с Home — один тап для сброса, когда фильтр опустошает сетку."
+      ]
     }
   ]
 }

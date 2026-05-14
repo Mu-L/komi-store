@@ -9,6 +9,12 @@
       "bullets": [
         "Homebrew で macOS にインストール — 新しい tap から `brew install --cask github-store`。"
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Home から 'Hide seen' を無効化 — フィルタがグリッドを空にしたとき、ワンタップでリセット。"
+      ]
     }
   ]
 }

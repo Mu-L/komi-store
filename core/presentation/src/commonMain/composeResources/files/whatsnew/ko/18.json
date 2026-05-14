@@ -9,6 +9,12 @@
       "bullets": [
         "Homebrew로 macOS에 설치 — 새 tap에서 `brew install --cask github-store`."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Home에서 'Hide seen' 비활성화 — 필터가 그리드를 비울 때 한 번 탭으로 재설정."
+      ]
     }
   ]
 }

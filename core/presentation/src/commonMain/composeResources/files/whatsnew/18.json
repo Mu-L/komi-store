@@ -9,6 +9,12 @@
       "bullets": [
         "macOS install via Homebrew — `brew install --cask github-store` from our new tap."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Disable 'Hide seen' from Home — one-tap reset when the filter empties the grid."
+      ]
     }
   ]
 }

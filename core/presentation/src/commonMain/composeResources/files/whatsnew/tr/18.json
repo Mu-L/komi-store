@@ -9,6 +9,12 @@
       "bullets": [
         "macOS'ta Homebrew ile kurulum — yeni tap'imizden `brew install --cask github-store`."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Home'dan 'Hide seen' kapat — filtre ızgarayı boşalttığında tek dokunuşla sıfırla."
+      ]
     }
   ]
 }

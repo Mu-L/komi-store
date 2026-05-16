@@ -301,7 +301,10 @@ class RootServiceManager(
                 proc.destroyForcibly()
                 ProbeResultKind.NOT_ZERO
             } else {
-                val output = BufferedReader(InputStreamReader(proc.inputStream)).readText().trim()
+                val output =
+                    BufferedReader(InputStreamReader(proc.inputStream)).use {
+                        it.readText().trim()
+                    }
                 if (proc.exitValue() == 0 && output.contains("uid=0")) {
                     ProbeResultKind.UID_ZERO
                 } else {

@@ -12,5 +12,5 @@ data class DeviceAppUi(
     val isUpdatedSystemApp: Boolean = false,
 ) {
     val installerCategory: InstallerCategory
-        get() = InstallerCategory.classify(installerPackageName, isUpdatedSystemApp)
+        get() = InstallerCategory.classify(installerPackageName, isUpdatedSystemApp, packageName)
 }

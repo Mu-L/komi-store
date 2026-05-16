@@ -3,8 +3,8 @@ package zed.rainxch.core.domain.model
 enum class InstallerCategory(val sortPriority: Int) {
     SIDE_STORE(0),
     SIDELOADED(1),
-    VENDOR_STORE(2),
-    PLAY_STORE(3),
+    PLAY_STORE(2),
+    VENDOR_STORE(3),
     SYSTEM_UPDATE(4),
     ;
 
@@ -34,20 +34,69 @@ enum class InstallerCategory(val sortPriority: Int) {
                 "com.amazon.venezia",
             )
 
+        // Heuristic fallback when the installer is null/unknown — many
+        // OEM-preloaded apps live in /data (so they aren't flagged
+        // FLAG_UPDATED_SYSTEM_APP) and report an installer string we
+        // don't recognize or none at all due to package-visibility
+        // quirks. Falling back to the package-name namespace keeps them
+        // out of the SIDELOADED bucket where they'd drown user content.
+        private val VENDOR_PACKAGE_PREFIXES =
+            listOf(
+                "com.samsung.",
+                "com.sec.",
+                "com.sec.android.",
+                "com.huawei.",
+                "com.hihonor.",
+                "com.honor.",
+                "com.xiaomi.",
+                "com.miui.",
+                "com.mi.",
+                "com.heytap.",
+                "com.oppo.",
+                "com.coloros.",
+                "com.oneplus.",
+                "com.bbk.",
+                "com.vivo.",
+                "com.iqoo.",
+                "com.amazon.",
+                "com.transsion.",
+                "com.tecno.",
+                "com.infinix.",
+                "com.itel.",
+                "com.motorola.",
+                "com.lge.",
+                "com.sonyericsson.",
+                "com.sonymobile.",
+            )
+
+        private val SYSTEM_PACKAGE_PREFIXES =
+            listOf(
+                "com.google.android.gms",
+                "com.google.android.gsf",
+                "com.android.",
+                "android.",
+            )
+
         private const val PLAY_STORE_INSTALLER = "com.android.vending"
 
         fun classify(
             installerPackageName: String?,
             isUpdatedSystemApp: Boolean,
+            packageName: String? = null,
         ): InstallerCategory {
             if (isUpdatedSystemApp) return SYSTEM_UPDATE
-            return when (installerPackageName) {
-                null -> SIDELOADED
-                PLAY_STORE_INSTALLER -> PLAY_STORE
-                in SIDE_STORE_INSTALLERS -> SIDE_STORE
-                in VENDOR_STORE_INSTALLERS -> VENDOR_STORE
-                else -> SIDELOADED
+            when (installerPackageName) {
+                null -> Unit
+                PLAY_STORE_INSTALLER -> return PLAY_STORE
+                in SIDE_STORE_INSTALLERS -> return SIDE_STORE
+                in VENDOR_STORE_INSTALLERS -> return VENDOR_STORE
+                else -> Unit
             }
+            if (packageName != null) {
+                if (SYSTEM_PACKAGE_PREFIXES.any { packageName.startsWith(it) }) return SYSTEM_UPDATE
+                if (VENDOR_PACKAGE_PREFIXES.any { packageName.startsWith(it) }) return VENDOR_STORE
+            }
+            return SIDELOADED
         }
     }
 }

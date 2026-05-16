@@ -23,6 +23,12 @@
         "Android 16 / custom-ROM crash on Settings + download failure — falls back to internal storage when external is blocked.",
         "Magisk / KernelSU / APatch detection on Android 13+ — previous probe was masked by SELinux."
       ]
+    },
+    {
+      "type": "IMPROVED",
+      "bullets": [
+        "Manually linking apps — non-Play and sideloaded apps sort to the top. Toggle to include Play Store apps."
+      ]
     }
   ]
 }

@@ -23,6 +23,12 @@
         "Crash en Android 16 / ROMs personalizadas en Ajustes y descargas — usa almacenamiento interno cuando el externo está bloqueado.",
         "Detección de Magisk / KernelSU / APatch en Android 13+ — la prueba anterior la ocultaba SELinux."
       ]
+    },
+    {
+      "type": "IMPROVED",
+      "bullets": [
+        "Al vincular apps manualmente — las apps no-Play y sideloaded aparecen primero. Toggle para incluir Play Store."
+      ]
     }
   ]
 }

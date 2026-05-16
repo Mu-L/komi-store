@@ -23,6 +23,12 @@
         "Android 16 / 커스텀 ROM에서 설정 크래시 및 다운로드 실패 수정 — 외부 저장소가 차단되면 내부 저장소로 폴백.",
         "Android 13+ 에서 Magisk / KernelSU / APatch 감지 — 이전 검사는 SELinux 로 가려졌었습니다."
       ]
+    },
+    {
+      "type": "IMPROVED",
+      "bullets": [
+        "수동 연결 — Play 외 / 사이드로드 앱이 먼저 표시. Play 스토어 표시는 토글."
+      ]
     }
   ]
 }

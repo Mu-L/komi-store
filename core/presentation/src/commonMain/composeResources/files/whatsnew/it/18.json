@@ -23,6 +23,12 @@
         "Crash su Android 16 / ROM personalizzate in Impostazioni e download — ripiega su archiviazione interna quando quella esterna è bloccata.",
         "Rilevamento di Magisk / KernelSU / APatch su Android 13+ — la sonda precedente era mascherata da SELinux."
       ]
+    },
+    {
+      "type": "IMPROVED",
+      "bullets": [
+        "Collegamento manuale di app — quelle non-Play e sideloadate ora compaiono in cima. Toggle per includere Play Store."
+      ]
     }
   ]
 }

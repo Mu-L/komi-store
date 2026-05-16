@@ -23,6 +23,12 @@
         "Crash na Android 16 / niestandardowych ROM-ach w Ustawieniach i pobieraniu — przełącza na pamięć wewnętrzną, gdy zewnętrzna jest zablokowana.",
         "Wykrywanie Magisk / KernelSU / APatch na Android 13+ — poprzednia sonda była maskowana przez SELinux."
       ]
+    },
+    {
+      "type": "IMPROVED",
+      "bullets": [
+        "Ręczne powiązywanie aplikacji — aplikacje spoza Play i sideloadowane na górze. Przełącznik, by pokazać Play Store."
+      ]
     }
   ]
 }

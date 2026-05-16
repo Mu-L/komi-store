@@ -23,6 +23,12 @@
         "Android 16 / özel ROM'larda Ayarlar çökmesi ve indirme hatası — harici depolama engellendiğinde dahili depolamaya geçer.",
         "Android 13+ üzerinde Magisk / KernelSU / APatch algılama — önceki sonda SELinux tarafından maskeleniyordu."
       ]
+    },
+    {
+      "type": "IMPROVED",
+      "bullets": [
+        "Uygulamayı manuel bağlarken — Play dışı ve sideloaded uygulamalar üstte. Play Store için aç/kapat."
+      ]
     }
   ]
 }

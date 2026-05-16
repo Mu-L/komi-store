@@ -23,6 +23,12 @@
         "Crash sur Android 16 / ROMs personnalisées dans Paramètres et téléchargements — bascule vers stockage interne quand l'externe est bloqué.",
         "Détection de Magisk / KernelSU / APatch sur Android 13+ — la sonde précédente était masquée par SELinux."
       ]
+    },
+    {
+      "type": "IMPROVED",
+      "bullets": [
+        "Lors du lien manuel — les apps non-Play et sideloadées remontent en haut. Bascule pour inclure Play Store."
+      ]
     }
   ]
 }

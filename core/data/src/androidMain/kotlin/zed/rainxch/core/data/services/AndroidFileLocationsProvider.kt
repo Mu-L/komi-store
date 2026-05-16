@@ -11,22 +11,12 @@ class AndroidFileLocationsProvider(
     @Volatile
     private var _cachedDownloadsDir: String? = null
 
-    // ... method using this field ...
-    
+    override fun appDownloadsDir(): String {
         _cachedDownloadsDir?.let { return it }
         synchronized(this) {
             _cachedDownloadsDir?.let { return it }
             val resolved = resolveDownloadsDir()
             _cachedDownloadsDir = resolved
-            return resolved
-        }
-
-    override fun appDownloadsDir(): String {
-        cachedDownloadsDir?.let { return it }
-        synchronized(this) {
-            cachedDownloadsDir?.let { return it }
-            val resolved = resolveDownloadsDir()
-            cachedDownloadsDir = resolved
             return resolved
         }
     }

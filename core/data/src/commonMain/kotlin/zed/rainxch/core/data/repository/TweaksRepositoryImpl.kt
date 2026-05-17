@@ -472,6 +472,32 @@ class TweaksRepositoryImpl(
         preferences.edit { prefs -> prefs[FAVOURITES_SORT_RULE_KEY] = name }
     }
 
+    override fun getCustomForgeHosts(): Flow<Set<String>> =
+        preferences.data.map { prefs ->
+            prefs[CUSTOM_FORGE_HOSTS_KEY]
+                ?.mapNotNull { it.trim().lowercase().takeIf(String::isNotEmpty) }
+                ?.toSet()
+                ?: emptySet()
+        }
+
+    override suspend fun addCustomForgeHost(host: String) {
+        val normalized = host.trim().lowercase()
+        if (normalized.isEmpty()) return
+        preferences.edit { prefs ->
+            val current = prefs[CUSTOM_FORGE_HOSTS_KEY] ?: emptySet()
+            prefs[CUSTOM_FORGE_HOSTS_KEY] = current + normalized
+        }
+    }
+
+    override suspend fun removeCustomForgeHost(host: String) {
+        val normalized = host.trim().lowercase()
+        if (normalized.isEmpty()) return
+        preferences.edit { prefs ->
+            val current = prefs[CUSTOM_FORGE_HOSTS_KEY] ?: return@edit
+            prefs[CUSTOM_FORGE_HOSTS_KEY] = current - normalized
+        }
+    }
+
     companion object {
         private const val DEFAULT_UPDATE_CHECK_INTERVAL_HOURS = 6L
 
@@ -511,5 +537,6 @@ class TweaksRepositoryImpl(
         private val APPS_SORT_RULE_KEY = stringPreferencesKey("apps_sort_rule")
         private val STARRED_SORT_RULE_KEY = stringPreferencesKey("starred_sort_rule")
         private val FAVOURITES_SORT_RULE_KEY = stringPreferencesKey("favourites_sort_rule")
+        private val CUSTOM_FORGE_HOSTS_KEY = stringSetPreferencesKey("custom_forge_hosts")
     }
 }

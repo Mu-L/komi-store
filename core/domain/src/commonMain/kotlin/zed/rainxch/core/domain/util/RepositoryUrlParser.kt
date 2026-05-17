@@ -15,7 +15,7 @@ object RepositoryUrlParser {
         "gitea.com",
     )
 
-    fun parse(rawUrl: String): RepositoryReference? {
+    fun parse(rawUrl: String, additionalForgejoHosts: Set<String> = emptySet()): RepositoryReference? {
         val trimmed = rawUrl.trim().trimEnd('/')
         val match = urlRegex.matchEntire(trimmed) ?: return null
         val host = match.groupValues[1].lowercase()
@@ -23,9 +23,12 @@ object RepositoryUrlParser {
         val repo = stripGitSuffix(match.groupValues[3])
         if (owner.isEmpty() || repo.isEmpty()) return null
 
+        val userHosts = additionalForgejoHosts.map { it.lowercase().trim() }.toSet()
+
         val source = when {
             host == "github.com" || host == "www.github.com" -> RepositorySource.GitHub
             host in knownForgejoHosts -> RepositorySource.Forgejo(host)
+            host in userHosts -> RepositorySource.Forgejo(host)
             looksLikeForgejoHost(host) -> RepositorySource.Forgejo(host)
             else -> return null
         }

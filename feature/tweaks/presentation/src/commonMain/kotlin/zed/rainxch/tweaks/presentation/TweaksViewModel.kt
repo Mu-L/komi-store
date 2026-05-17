@@ -209,6 +209,12 @@ class TweaksViewModel(
                 }
             }
         }
+
+        viewModelScope.launch {
+            tweaksRepository.getCustomForgeHosts().collect { hosts ->
+                _state.update { it.copy(customForgeHosts = hosts) }
+            }
+        }
     }
 
     private fun loadProxyConfig() {
@@ -994,6 +1000,49 @@ class TweaksViewModel(
 
             TweaksAction.OnReevaluateBatteryOptimizationCard -> {
                 evaluateBatteryOptimizationCard()
+            }
+
+            TweaksAction.OnOpenCustomForgesDialog -> {
+                _state.update {
+                    it.copy(
+                        showCustomForgesDialog = true,
+                        customForgeDraft = "",
+                        customForgeError = null,
+                    )
+                }
+            }
+
+            TweaksAction.OnDismissCustomForgesDialog -> {
+                _state.update { it.copy(showCustomForgesDialog = false) }
+            }
+
+            is TweaksAction.OnCustomForgeDraftChanged -> {
+                _state.update { it.copy(customForgeDraft = action.draft, customForgeError = null) }
+            }
+
+            TweaksAction.OnAddCustomForge -> {
+                val raw = _state.value.customForgeDraft
+                    .trim()
+                    .lowercase()
+                    .removePrefix("https://")
+                    .removePrefix("http://")
+                    .substringBefore('/')
+                if (raw.isEmpty() || !raw.contains('.') || raw.contains(' ')) {
+                    _state.update {
+                        it.copy(customForgeError = "Enter a valid hostname (e.g. forgejo.example.com).")
+                    }
+                    return
+                }
+                viewModelScope.launch {
+                    runCatching { tweaksRepository.addCustomForgeHost(raw) }
+                    _state.update { it.copy(customForgeDraft = "", customForgeError = null) }
+                }
+            }
+
+            is TweaksAction.OnRemoveCustomForge -> {
+                viewModelScope.launch {
+                    runCatching { tweaksRepository.removeCustomForgeHost(action.host) }
+                }
             }
         }
     }

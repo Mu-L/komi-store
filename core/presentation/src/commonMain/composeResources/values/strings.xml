@@ -1057,6 +1057,16 @@
     <string name="feedback_send_success_github">Thanks — opening your browser.</string>
     <string name="feedback_send_error">Couldn't open feedback channel: %1$s</string>
 
+    <!-- Tweaks feature - Custom forges -->
+    <string name="custom_forges_entry_label">Custom forges</string>
+    <string name="custom_forges_entry_subtitle">Add Forgejo / Gitea hosts you want GHS to recognise</string>
+    <string name="custom_forges_count_label">%1$d added</string>
+    <string name="custom_forges_dialog_title">Custom forges</string>
+    <string name="custom_forges_dialog_help">Enter the hostname of a Forgejo or Gitea instance (e.g. git.example.com). GHS will accept URLs from these hosts in the manual-link sheet.</string>
+    <string name="custom_forges_add_button">Add</string>
+    <string name="custom_forges_empty">No custom forges yet.</string>
+    <string name="done">Done</string>
+
     <!-- Tweaks feature - Mirror -->
     <string name="mirror_tweaks_entry_label">Download Mirror</string>
     <string name="mirror_picker_title">Download Mirror</string>

@@ -1852,9 +1852,11 @@ class AppsViewModel(
         val selectedApp = _state.value.selectedDeviceApp ?: return
         val url = _state.value.repoUrl.trim()
 
-        val parsedRef = zed.rainxch.core.domain.util.RepositoryUrlParser.parse(url)
-
         viewModelScope.launch {
+            val customHosts = runCatching {
+                tweaksRepository.getCustomForgeHosts().first()
+            }.getOrElse { emptySet() }
+            val parsedRef = zed.rainxch.core.domain.util.RepositoryUrlParser.parse(url, customHosts)
             if (parsedRef == null) {
                 _state.update { it.copy(repoValidationError = getString(Res.string.invalid_github_url)) }
                 return@launch

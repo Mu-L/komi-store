@@ -969,6 +969,19 @@
 
     <!-- ───── 1.8.1 backlog ───── -->
     <string name="add_from_starred_title">Добавить из избранных</string>
+    <string name="direct_url_menu_title">Отслеживать прямую ссылку</string>
+    <string name="direct_url_sheet_title">Отслеживать ссылку на загрузку</string>
+    <string name="direct_url_sheet_help">Вставьте любую ссылку на APK или установщик. GitHub Store периодически проверяет её и сообщает об обновлении при изменении файла.</string>
+    <string name="direct_url_field_url">Ссылка на загрузку</string>
+    <string name="direct_url_field_name">Название приложения</string>
+    <string name="direct_url_field_version">Текущая версия</string>
+    <string name="direct_url_field_icon">Ссылка на иконку (опционально)</string>
+    <string name="direct_url_add_button">Отслеживать</string>
+    <string name="direct_url_invalid_url">Введите корректный http(s) URL.</string>
+    <string name="direct_url_name_required">Название приложения обязательно.</string>
+    <string name="direct_url_added_snackbar">Отслеживание активно. Проверка пройдёт в следующем цикле.</string>
+    <string name="direct_url_save_failed">Не удалось сохранить прямую ссылку.</string>
+    <string name="direct_url_badge">URL</string>
     <string name="announcements_acknowledge">Прочитано</string>
     <string name="announcements_acknowledged">Принято к сведению</string>
     <string name="announcements_category_news">Новости</string>

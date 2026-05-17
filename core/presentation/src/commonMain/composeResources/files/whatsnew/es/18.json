@@ -38,7 +38,8 @@
         "Pulido de Markdown — blockquotes HTML y bloques <pre><code> renderizan bien. Sub/superíndices convierten a Unicode (H₂O, x²). Entidades HTML con nombre (©, ™, —, comillas curvas) decodificadas.",
         "Secciones <details>/<summary> colapsables como tarjetas tap-to-expand. Imágenes de insignia/botón adyacentes (Play Store, GitHub Releases, etc.) fluyen en una fila en vez de apilarse.",
         "Vincular apps manualmente ya no requiere re-descargar — tu versión seleccionada se acepta tal cual. Un banner en Detalles indica cuando una app fue vinculada manualmente.",
-        "Orden por sección — Instaladas (actualizaciones, recencia, nombre), Con estrella (recencia, nombre, estrellas), Favoritos (recencia, nombre); cada sección recuerda su propia elección."
+        "Orden por sección — Instaladas (actualizaciones, recencia, nombre), Con estrella (recencia, nombre, estrellas), Favoritos (recencia, nombre); cada sección recuerda su propia elección.",
+        "Sigue cualquier URL de descarga directa — pega un enlace de APK o instalador, ponle nombre; GitHub Store consulta la URL (ETag / Last-Modified) entre ciclos para detectar cambios."
       ]
     }
   ]

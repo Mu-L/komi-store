@@ -985,6 +985,19 @@
 
     <!-- ───── 1.8.1 backlog ───── -->
     <string name="add_from_starred_title">Yıldızlılardan ekle</string>
+    <string name="direct_url_menu_title">Doğrudan URL takip et</string>
+    <string name="direct_url_sheet_title">İndirme URL'sini takip et</string>
+    <string name="direct_url_sheet_help">Herhangi bir APK veya kurulum URL'sini yapıştırın. GitHub Store URL'yi yoklar ve dosya değişince güncelleme işareti verir.</string>
+    <string name="direct_url_field_url">İndirme URL'si</string>
+    <string name="direct_url_field_name">Uygulama adı</string>
+    <string name="direct_url_field_version">Mevcut sürüm</string>
+    <string name="direct_url_field_icon">Simge URL'si (isteğe bağlı)</string>
+    <string name="direct_url_add_button">Takip et</string>
+    <string name="direct_url_invalid_url">Geçerli bir http(s) URL girin.</string>
+    <string name="direct_url_name_required">Uygulama adı gerekli.</string>
+    <string name="direct_url_added_snackbar">Takip başladı. Sonraki çevrimde kontrol edilecek.</string>
+    <string name="direct_url_save_failed">Doğrudan URL kaydedilemedi.</string>
+    <string name="direct_url_badge">URL</string>
     <string name="announcements_acknowledge">Bunu okudum</string>
     <string name="announcements_acknowledged">Onaylandı</string>
     <string name="announcements_category_news">Haberler</string>

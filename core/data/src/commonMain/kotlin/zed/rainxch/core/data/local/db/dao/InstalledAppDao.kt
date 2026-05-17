@@ -263,4 +263,25 @@ interface InstalledAppDao {
         packageName: String,
         timestamp: Long,
     )
+
+    @Query("SELECT * FROM installed_apps WHERE directUrlPollUrl = :url LIMIT 1")
+    suspend fun getAppByDirectUrl(url: String): InstalledAppEntity?
+
+    @Query(
+        """
+        UPDATE installed_apps
+           SET directUrlLastEtag = :etag,
+               directUrlLastModified = :lastModified,
+               isUpdateAvailable = :isUpdateAvailable,
+               lastCheckedAt = :timestamp
+         WHERE packageName = :packageName
+        """,
+    )
+    suspend fun updateDirectUrlPollState(
+        packageName: String,
+        etag: String?,
+        lastModified: String?,
+        isUpdateAvailable: Boolean,
+        timestamp: Long,
+    )
 }

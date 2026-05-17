@@ -197,6 +197,13 @@ interface InstalledAppsRepository {
     ): MatchingPreview
 
     suspend fun <R> executeInTransaction(block: suspend () -> R): R
+
+    suspend fun saveDirectUrlApp(
+        pollUrl: String,
+        appName: String,
+        installedVersion: String,
+        iconUrl: String? = null,
+    ): InstalledApp
 }
 
 /**

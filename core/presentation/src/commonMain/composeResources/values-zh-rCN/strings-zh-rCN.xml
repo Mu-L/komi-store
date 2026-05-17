@@ -945,6 +945,19 @@
 
     <!-- ───── 1.8.1 backlog ───── -->
     <string name="add_from_starred_title">从星标添加</string>
+    <string name="direct_url_menu_title">追踪直链</string>
+    <string name="direct_url_sheet_title">追踪下载链接</string>
+    <string name="direct_url_sheet_help">粘贴任何 APK 或安装包链接。GitHub Store 会定期检查链接，文件变化时标记为有更新。</string>
+    <string name="direct_url_field_url">下载链接</string>
+    <string name="direct_url_field_name">应用名称</string>
+    <string name="direct_url_field_version">当前版本</string>
+    <string name="direct_url_field_icon">图标链接（可选）</string>
+    <string name="direct_url_add_button">追踪</string>
+    <string name="direct_url_invalid_url">请输入有效的 http(s) URL。</string>
+    <string name="direct_url_name_required">需要应用名称。</string>
+    <string name="direct_url_added_snackbar">已开始追踪。下个周期将进行更新检查。</string>
+    <string name="direct_url_save_failed">无法保存直链。</string>
+    <string name="direct_url_badge">URL</string>
     <string name="announcements_acknowledge">我已阅读</string>
     <string name="announcements_acknowledged">已确认</string>
     <string name="announcements_category_news">资讯</string>

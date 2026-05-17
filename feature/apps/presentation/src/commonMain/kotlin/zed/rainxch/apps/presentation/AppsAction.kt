@@ -167,4 +167,13 @@ sealed interface AppsAction {
     data object OnRescanForGithubApps : AppsAction
 
     data object OnAddFromStarredClick : AppsAction
+
+    // Direct-URL tracker — paste any download URL, GHS polls HEAD for changes.
+    data object OnAddDirectUrlClick : AppsAction
+    data object OnDismissDirectUrlSheet : AppsAction
+    data class OnDirectUrlChanged(val url: String) : AppsAction
+    data class OnDirectUrlNameChanged(val name: String) : AppsAction
+    data class OnDirectUrlVersionChanged(val version: String) : AppsAction
+    data class OnDirectUrlIconChanged(val iconUrl: String) : AppsAction
+    data object OnConfirmAddDirectUrl : AppsAction
 }

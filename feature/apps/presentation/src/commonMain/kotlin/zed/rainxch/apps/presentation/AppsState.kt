@@ -94,6 +94,14 @@ data class AppsState(
     val isExternalImportInFlight: Boolean = false,
     // Keep Android Open campaign banner
     val showKaoBanner: Boolean = false,
+    // Direct-URL tracker bottom sheet
+    val showDirectUrlSheet: Boolean = false,
+    val directUrlDraft: String = "",
+    val directUrlNameDraft: String = "",
+    val directUrlVersionDraft: String = "",
+    val directUrlIconDraft: String = "",
+    val directUrlSaving: Boolean = false,
+    val directUrlError: String? = null,
 ) {
     val filteredDeviceApps: ImmutableList<DeviceAppUi>
         get() {

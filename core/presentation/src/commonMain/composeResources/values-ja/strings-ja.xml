@@ -943,6 +943,19 @@
 
     <!-- ───── 1.8.1 backlog ───── -->
     <string name="add_from_starred_title">スター済みから追加</string>
+    <string name="direct_url_menu_title">直接URLを追跡</string>
+    <string name="direct_url_sheet_title">ダウンロードURLを追跡</string>
+    <string name="direct_url_sheet_help">APKやインストーラーのURLを貼り付けてください。GitHub StoreがURLを監視し、ファイルが変わると更新を通知します。</string>
+    <string name="direct_url_field_url">ダウンロードURL</string>
+    <string name="direct_url_field_name">アプリ名</string>
+    <string name="direct_url_field_version">現在のバージョン</string>
+    <string name="direct_url_field_icon">アイコンURL（任意）</string>
+    <string name="direct_url_add_button">追跡</string>
+    <string name="direct_url_invalid_url">有効なhttp(s) URLを入力してください。</string>
+    <string name="direct_url_name_required">アプリ名は必須です。</string>
+    <string name="direct_url_added_snackbar">追跡開始。次のサイクルで更新確認を実行します。</string>
+    <string name="direct_url_save_failed">直接URLを保存できませんでした。</string>
+    <string name="direct_url_badge">URL</string>
     <string name="announcements_acknowledge">読みました</string>
     <string name="announcements_acknowledged">確認済み</string>
     <string name="announcements_category_news">ニュース</string>

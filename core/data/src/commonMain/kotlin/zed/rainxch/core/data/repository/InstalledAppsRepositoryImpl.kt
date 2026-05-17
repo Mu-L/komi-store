@@ -5,6 +5,7 @@ import androidx.room.useWriterConnection
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.head
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
@@ -362,6 +363,10 @@ class InstalledAppsRepositoryImpl(
 
         if (!app.updateCheckEnabled) {
             return false
+        }
+
+        if (app.installSource == InstallSource.DIRECT_URL) {
+            return checkDirectUrlForUpdates(app.toDomain())
         }
 
         try {
@@ -810,4 +815,97 @@ class InstalledAppsRepositoryImpl(
     // `core.domain.util.VersionMath` so the periodic update check,
     // the external-install verdict in `PackageEventReceiver`, and any
     // future surfaces all share one comparator. See #378.
+
+    override suspend fun saveDirectUrlApp(
+        pollUrl: String,
+        appName: String,
+        installedVersion: String,
+        iconUrl: String?,
+    ): InstalledApp {
+        val trimmedUrl = pollUrl.trim()
+        installedAppsDao.getAppByDirectUrl(trimmedUrl)?.let {
+            return it.toDomain()
+        }
+
+        val now = System.currentTimeMillis()
+        val packageName = "direct-url:$now"
+        val effectiveIcon = iconUrl?.trim().orEmpty()
+
+        val (initialEtag, initialLastModified) = runCatching {
+            val response = httpClient.head(trimmedUrl)
+            response.headers[HttpHeaders.ETag] to response.headers[HttpHeaders.LastModified]
+        }.getOrElse { null to null }
+
+        val app = InstalledApp(
+            packageName = packageName,
+            repoId = 0L,
+            repoName = appName,
+            repoOwner = "",
+            repoOwnerAvatarUrl = effectiveIcon,
+            repoDescription = null,
+            primaryLanguage = null,
+            repoUrl = trimmedUrl,
+            installedVersion = installedVersion,
+            installedAssetName = null,
+            installedAssetUrl = trimmedUrl,
+            latestVersion = installedVersion,
+            latestAssetName = null,
+            latestAssetUrl = trimmedUrl,
+            latestAssetSize = null,
+            appName = appName,
+            installSource = InstallSource.DIRECT_URL,
+            installedAt = now,
+            lastCheckedAt = now,
+            lastUpdatedAt = now,
+            isUpdateAvailable = false,
+            signingFingerprint = null,
+            systemArchitecture = "",
+            fileExtension = "",
+            directUrlPollUrl = trimmedUrl,
+            directUrlLastEtag = initialEtag,
+            directUrlLastModified = initialLastModified,
+        )
+
+        installedAppsDao.insertApp(app.toEntity())
+        return app
+    }
+
+    private suspend fun checkDirectUrlForUpdates(app: InstalledApp): Boolean {
+        val pollUrl = app.directUrlPollUrl ?: return false
+        val now = System.currentTimeMillis()
+
+        val response = try {
+            httpClient.head(pollUrl)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            Logger.w { "Direct-URL HEAD failed for ${app.packageName}: ${e.message}" }
+            installedAppsDao.updateLastChecked(app.packageName, now)
+            return false
+        }
+
+        val etag = response.headers[HttpHeaders.ETag]
+        val lastModified = response.headers[HttpHeaders.LastModified]
+
+        val previousEtag = app.directUrlLastEtag
+        val previousLastModified = app.directUrlLastModified
+
+        val changed = when {
+            etag != null && previousEtag != null -> etag != previousEtag
+            lastModified != null && previousLastModified != null -> lastModified != previousLastModified
+            etag != null && previousEtag == null -> false
+            lastModified != null && previousLastModified == null -> false
+            else -> false
+        }
+
+        installedAppsDao.updateDirectUrlPollState(
+            packageName = app.packageName,
+            etag = etag ?: previousEtag,
+            lastModified = lastModified ?: previousLastModified,
+            isUpdateAvailable = changed || app.isUpdateAvailable,
+            timestamp = now,
+        )
+
+        return changed
+    }
 }

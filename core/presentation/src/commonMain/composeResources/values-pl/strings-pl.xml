@@ -969,6 +969,19 @@
 
     <!-- ───── 1.8.1 backlog ───── -->
     <string name="add_from_starred_title">Dodaj z oznaczonych gwiazdką</string>
+    <string name="direct_url_menu_title">Śledź bezpośredni URL</string>
+    <string name="direct_url_sheet_title">Śledź URL pobierania</string>
+    <string name="direct_url_sheet_help">Wklej dowolny URL APK lub instalatora. GitHub Store sprawdza go cyklicznie i sygnalizuje aktualizację, gdy plik się zmienia.</string>
+    <string name="direct_url_field_url">URL pobierania</string>
+    <string name="direct_url_field_name">Nazwa aplikacji</string>
+    <string name="direct_url_field_version">Bieżąca wersja</string>
+    <string name="direct_url_field_icon">URL ikony (opcjonalnie)</string>
+    <string name="direct_url_add_button">Śledź</string>
+    <string name="direct_url_invalid_url">Wpisz prawidłowy URL http(s).</string>
+    <string name="direct_url_name_required">Nazwa aplikacji jest wymagana.</string>
+    <string name="direct_url_added_snackbar">Śledzenie aktywne. Sprawdzenie nastąpi w kolejnym cyklu.</string>
+    <string name="direct_url_save_failed">Nie udało się zapisać bezpośredniego URL.</string>
+    <string name="direct_url_badge">URL</string>
     <string name="announcements_acknowledge">Przeczytałem</string>
     <string name="announcements_acknowledged">Przyjęto do wiadomości</string>
     <string name="announcements_category_news">Nowości</string>

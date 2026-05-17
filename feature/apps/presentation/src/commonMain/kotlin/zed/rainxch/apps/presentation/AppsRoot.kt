@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -114,6 +115,7 @@ import zed.rainxch.core.presentation.utils.arrowKeyScroll
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.add_by_link
 import zed.rainxch.githubstore.core.presentation.res.add_from_starred_title
+import zed.rainxch.githubstore.core.presentation.res.direct_url_menu_title
 import zed.rainxch.githubstore.core.presentation.res.advanced_settings_open
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_more_actions
 import zed.rainxch.githubstore.core.presentation.res.apps_ignore_updates
@@ -373,6 +375,19 @@ fun AppsScreen(
                                     )
                                 },
                             )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.direct_url_menu_title)) },
+                                onClick = {
+                                    showOverflowMenu = false
+                                    onAction(AppsAction.OnAddDirectUrlClick)
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Link,
+                                        contentDescription = null,
+                                    )
+                                },
+                            )
                         }
                     }
                 },
@@ -405,6 +420,13 @@ fun AppsScreen(
         // Link app bottom sheet
         if (state.showLinkSheet) {
             LinkAppBottomSheet(
+                state = state,
+                onAction = onAction,
+            )
+        }
+
+        if (state.showDirectUrlSheet) {
+            zed.rainxch.apps.presentation.components.DirectUrlBottomSheet(
                 state = state,
                 onAction = onAction,
             )
@@ -962,30 +984,43 @@ fun AppItemCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        CoilImage(
-                            imageModel = { app.repoOwnerAvatarUrl },
-                            modifier =
-                                Modifier
-                                    .size(18.dp)
-                                    .clip(CircleShape),
-                            loading = {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    CircularWavyProgressIndicator()
-                                }
-                            },
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = app.repoOwner,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false),
-                        )
+                        if (app.installSource == zed.rainxch.core.domain.model.InstallSource.DIRECT_URL) {
+                            zed.rainxch.apps.presentation.components.DirectUrlBadge()
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = app.repoUrl,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
+                        } else {
+                            CoilImage(
+                                imageModel = { app.repoOwnerAvatarUrl },
+                                modifier =
+                                    Modifier
+                                        .size(18.dp)
+                                        .clip(CircleShape),
+                                loading = {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        CircularWavyProgressIndicator()
+                                    }
+                                },
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = app.repoOwner,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
+                        }
                     }
 
                     when {

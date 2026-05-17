@@ -736,6 +736,19 @@
     <string name="import_summary_unknown_caption">It doesn't look like a GitHub Store or Obtainium export. Here's the start of the file:</string>
 
     <string name="add_from_starred_title">Add from starred</string>
+    <string name="direct_url_menu_title">Track a direct URL</string>
+    <string name="direct_url_sheet_title">Track a download URL</string>
+    <string name="direct_url_sheet_help">Paste any APK or installer URL. GitHub Store polls it for changes and flags an update when the file behind it changes.</string>
+    <string name="direct_url_field_url">Download URL</string>
+    <string name="direct_url_field_name">App name</string>
+    <string name="direct_url_field_version">Current version</string>
+    <string name="direct_url_field_icon">Icon URL (optional)</string>
+    <string name="direct_url_add_button">Track</string>
+    <string name="direct_url_invalid_url">Enter a valid http(s) URL.</string>
+    <string name="direct_url_name_required">App name required.</string>
+    <string name="direct_url_added_snackbar">Tracking. Update checks will run on the next cycle.</string>
+    <string name="direct_url_save_failed">Could not save direct URL.</string>
+    <string name="direct_url_badge">URL</string>
     <string name="starred_picker_title">Add from starred</string>
     <string name="starred_picker_header_counts">%1$d starred · %2$d ship APKs · %3$d already tracked</string>
     <string name="starred_picker_progress">Checking %1$d / %2$d…</string>

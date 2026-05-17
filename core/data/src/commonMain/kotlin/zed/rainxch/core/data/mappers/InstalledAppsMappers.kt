@@ -50,6 +50,9 @@ fun InstalledApp.toEntity(): InstalledAppEntity =
         pendingInstallVersion = pendingInstallVersion,
         pendingInstallAssetName = pendingInstallAssetName,
         skippedReleaseTag = skippedReleaseTag,
+        directUrlPollUrl = directUrlPollUrl,
+        directUrlLastEtag = directUrlLastEtag,
+        directUrlLastModified = directUrlLastModified,
     )
 
 fun InstalledAppEntity.toDomain(): InstalledApp =
@@ -99,4 +102,7 @@ fun InstalledAppEntity.toDomain(): InstalledApp =
         pendingInstallVersion = pendingInstallVersion,
         pendingInstallAssetName = pendingInstallAssetName,
         skippedReleaseTag = skippedReleaseTag,
+        directUrlPollUrl = directUrlPollUrl,
+        directUrlLastEtag = directUrlLastEtag,
+        directUrlLastModified = directUrlLastModified,
     )

@@ -987,6 +987,19 @@
 
     <!-- ───── 1.8.1 backlog ───── -->
     <string name="add_from_starred_title">तारांकित से जोड़ें</string>
+    <string name="direct_url_menu_title">डायरेक्ट URL ट्रैक करें</string>
+    <string name="direct_url_sheet_title">डाउनलोड URL ट्रैक करें</string>
+    <string name="direct_url_sheet_help">कोई भी APK या इंस्टॉलर URL पेस्ट करें। GitHub Store उसकी जांच करता है और फ़ाइल बदलने पर अपडेट संकेत देता है।</string>
+    <string name="direct_url_field_url">डाउनलोड URL</string>
+    <string name="direct_url_field_name">ऐप का नाम</string>
+    <string name="direct_url_field_version">वर्तमान संस्करण</string>
+    <string name="direct_url_field_icon">आइकन URL (वैकल्पिक)</string>
+    <string name="direct_url_add_button">ट्रैक</string>
+    <string name="direct_url_invalid_url">वैध http(s) URL डालें।</string>
+    <string name="direct_url_name_required">ऐप का नाम आवश्यक।</string>
+    <string name="direct_url_added_snackbar">ट्रैक हो रहा है। अगले चक्र में जांच चलेगी।</string>
+    <string name="direct_url_save_failed">डायरेक्ट URL सहेजा नहीं जा सका।</string>
+    <string name="direct_url_badge">URL</string>
     <string name="announcements_acknowledge">मैंने पढ़ लिया</string>
     <string name="announcements_acknowledged">देखा गया</string>
     <string name="announcements_category_news">समाचार</string>

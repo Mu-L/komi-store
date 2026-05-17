@@ -631,6 +631,93 @@ class AppsViewModel(
                     _events.send(AppsEvent.NavigateToExternalImport)
                 }
             }
+
+            AppsAction.OnAddDirectUrlClick -> {
+                _state.update {
+                    it.copy(
+                        showDirectUrlSheet = true,
+                        directUrlDraft = "",
+                        directUrlNameDraft = "",
+                        directUrlVersionDraft = "",
+                        directUrlIconDraft = "",
+                        directUrlError = null,
+                        directUrlSaving = false,
+                    )
+                }
+            }
+
+            AppsAction.OnDismissDirectUrlSheet -> {
+                _state.update { it.copy(showDirectUrlSheet = false) }
+            }
+
+            is AppsAction.OnDirectUrlChanged -> {
+                _state.update { it.copy(directUrlDraft = action.url, directUrlError = null) }
+            }
+
+            is AppsAction.OnDirectUrlNameChanged -> {
+                _state.update { it.copy(directUrlNameDraft = action.name) }
+            }
+
+            is AppsAction.OnDirectUrlVersionChanged -> {
+                _state.update { it.copy(directUrlVersionDraft = action.version) }
+            }
+
+            is AppsAction.OnDirectUrlIconChanged -> {
+                _state.update { it.copy(directUrlIconDraft = action.iconUrl) }
+            }
+
+            AppsAction.OnConfirmAddDirectUrl -> {
+                addDirectUrlApp()
+            }
+        }
+    }
+
+    private fun addDirectUrlApp() {
+        val current = _state.value
+        val url = current.directUrlDraft.trim()
+        val name = current.directUrlNameDraft.trim()
+        val version = current.directUrlVersionDraft.trim().ifEmpty { "1.0.0" }
+        val icon = current.directUrlIconDraft.trim().ifEmpty { null }
+
+        if (url.isEmpty() || !(url.startsWith("http://") || url.startsWith("https://"))) {
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(directUrlError = getString(Res.string.direct_url_invalid_url))
+                }
+            }
+            return
+        }
+        if (name.isEmpty()) {
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(directUrlError = getString(Res.string.direct_url_name_required))
+                }
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(directUrlSaving = true, directUrlError = null) }
+            try {
+                installedAppsRepository.saveDirectUrlApp(
+                    pollUrl = url,
+                    appName = name,
+                    installedVersion = version,
+                    iconUrl = icon,
+                )
+                _state.update { it.copy(showDirectUrlSheet = false, directUrlSaving = false) }
+                _events.send(AppsEvent.ShowSuccess(getString(Res.string.direct_url_added_snackbar)))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.error("Failed to save direct-URL app: ${e.message}")
+                _state.update {
+                    it.copy(
+                        directUrlSaving = false,
+                        directUrlError = e.message ?: getString(Res.string.direct_url_save_failed),
+                    )
+                }
+            }
         }
     }
 

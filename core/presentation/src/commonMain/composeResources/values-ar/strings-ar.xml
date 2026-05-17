@@ -1000,6 +1000,19 @@
 
     <!-- ───── 1.8.1 backlog ───── -->
     <string name="add_from_starred_title">إضافة من المميزة بنجمة</string>
+    <string name="direct_url_menu_title">تتبّع رابط مباشر</string>
+    <string name="direct_url_sheet_title">تتبّع رابط تنزيل</string>
+    <string name="direct_url_sheet_help">الصق أي رابط APK أو مثبّت. سيتحقق GitHub Store من الرابط دورياً ويُعلِم بوجود تحديث عند تغيّر الملف.</string>
+    <string name="direct_url_field_url">رابط التنزيل</string>
+    <string name="direct_url_field_name">اسم التطبيق</string>
+    <string name="direct_url_field_version">الإصدار الحالي</string>
+    <string name="direct_url_field_icon">رابط الأيقونة (اختياري)</string>
+    <string name="direct_url_add_button">تتبّع</string>
+    <string name="direct_url_invalid_url">أدخل رابط http(s) صالحاً.</string>
+    <string name="direct_url_name_required">اسم التطبيق مطلوب.</string>
+    <string name="direct_url_added_snackbar">تمت إضافته للتتبّع. سيُجرى الفحص في الدورة التالية.</string>
+    <string name="direct_url_save_failed">تعذّر حفظ الرابط المباشر.</string>
+    <string name="direct_url_badge">رابط</string>
     <string name="announcements_acknowledge">قرأت هذا</string>
     <string name="announcements_acknowledged">تم الاطلاع</string>
     <string name="announcements_category_news">أخبار</string>

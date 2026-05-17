@@ -5,5 +5,6 @@ enum class InstallSource {
     OBTAINIUM,
     APP_MANAGER,
     MANUAL,
+    DIRECT_URL,
     UNKNOWN,
 }

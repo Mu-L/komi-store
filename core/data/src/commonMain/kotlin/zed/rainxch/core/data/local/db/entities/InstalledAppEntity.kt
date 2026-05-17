@@ -167,4 +167,10 @@ data class InstalledAppEntity(
      */
     @ColumnInfo(defaultValue = "NULL")
     val skippedReleaseTag: String? = null,
+    @ColumnInfo(defaultValue = "NULL")
+    val directUrlPollUrl: String? = null,
+    @ColumnInfo(defaultValue = "NULL")
+    val directUrlLastEtag: String? = null,
+    @ColumnInfo(defaultValue = "NULL")
+    val directUrlLastModified: String? = null,
 )

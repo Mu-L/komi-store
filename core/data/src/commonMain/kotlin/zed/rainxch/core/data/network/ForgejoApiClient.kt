@@ -1,0 +1,87 @@
+package zed.rainxch.core.data.network
+
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRedirect
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.parameter
+import io.ktor.client.request.url
+import io.ktor.http.HttpHeaders
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.serialization.json.Json
+import zed.rainxch.core.data.dto.GithubRepoNetworkModel
+import zed.rainxch.core.data.dto.ReleaseNetwork
+import zed.rainxch.core.domain.model.ProxyConfig
+import java.io.IOException
+
+class ForgejoApiClient(
+    private val host: String,
+    private val proxyConfig: ProxyConfig = ProxyConfig.System,
+) {
+    private val baseUrl: String = "https://$host/api/v1"
+
+    private val client: HttpClient = createPlatformHttpClient(proxyConfig).config {
+        install(ContentNegotiation) {
+            json(JSON)
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+            connectTimeoutMillis = 30_000
+            socketTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+        }
+        install(HttpRequestRetry) {
+            maxRetries = 3
+            retryIf { _, response -> response.status.value in 500..<600 }
+            retryOnExceptionIf { _, cause ->
+                cause is HttpRequestTimeoutException ||
+                    cause is UnresolvedAddressException ||
+                    cause is IOException
+            }
+            exponentialDelay()
+        }
+        install(HttpRedirect) { checkHttpMethod = false }
+        expectSuccess = false
+        defaultRequest {
+            url(baseUrl)
+            header(HttpHeaders.Accept, "application/json")
+            header(HttpHeaders.UserAgent, "GithubStore/1.0 (KMP)")
+        }
+    }
+
+    suspend fun getRepository(owner: String, repo: String): Result<GithubRepoNetworkModel> =
+        client.executeRequest {
+            get("$baseUrl/repos/$owner/$repo")
+        }
+
+    suspend fun getReleases(
+        owner: String,
+        repo: String,
+        perPage: Int = 50,
+        page: Int = 1,
+    ): Result<List<ReleaseNetwork>> =
+        client.executeRequest {
+            get("$baseUrl/repos/$owner/$repo/releases") {
+                parameter("limit", perPage)
+                parameter("page", page)
+            }
+        }
+
+    suspend fun getLatestRelease(owner: String, repo: String): Result<ReleaseNetwork> =
+        client.executeRequest {
+            get("$baseUrl/repos/$owner/$repo/releases/latest")
+        }
+
+    companion object {
+        private val JSON = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
+    }
+}

@@ -42,6 +42,7 @@ import zed.rainxch.core.data.network.BackendApiClient
 import zed.rainxch.core.data.network.BackendExternalMatchApi
 import zed.rainxch.core.data.network.ExternalMatchApi
 import zed.rainxch.core.data.network.ExternalMatchApiSelector
+import zed.rainxch.core.data.network.ForgejoClientRegistry
 import zed.rainxch.core.data.network.GitHubClientProvider
 import zed.rainxch.core.data.network.MirrorApiClient
 import zed.rainxch.core.data.network.MockExternalMatchApi
@@ -121,6 +122,8 @@ val coreModule =
             )
         }
 
+        single { ForgejoClientRegistry() }
+
         single<InstalledAppsRepository> {
             InstalledAppsRepositoryImpl(
                 database = get(),
@@ -129,6 +132,7 @@ val coreModule =
                 installer = get(),
                 clientProvider = get(),
                 backendApiClient = get(),
+                forgejoClientRegistry = get(),
             )
         }
 

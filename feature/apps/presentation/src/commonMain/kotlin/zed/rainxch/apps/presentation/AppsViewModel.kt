@@ -1852,15 +1852,20 @@ class AppsViewModel(
         val selectedApp = _state.value.selectedDeviceApp ?: return
         val url = _state.value.repoUrl.trim()
 
-        val parsed = parseGithubUrl(url)
+        val parsedRef = zed.rainxch.core.domain.util.RepositoryUrlParser.parse(url)
 
         viewModelScope.launch {
-            if (parsed == null) {
+            if (parsedRef == null) {
                 _state.update { it.copy(repoValidationError = getString(Res.string.invalid_github_url)) }
                 return@launch
             }
 
-            val (owner, repo) = parsed
+            val owner = parsedRef.owner
+            val repo = parsedRef.repo
+            val sourceHost: String? = when (val src = parsedRef.source) {
+                zed.rainxch.core.domain.model.RepositorySource.GitHub -> null
+                is zed.rainxch.core.domain.model.RepositorySource.Forgejo -> src.host
+            }
             _state.update {
                 it.copy(
                     isValidatingRepo = true,
@@ -1872,7 +1877,7 @@ class AppsViewModel(
             try {
                 _state.update { it.copy(linkValidationStatus = getString(Res.string.validating_repo)) }
 
-                val repoInfo = appsRepository.fetchRepoInfo(owner, repo)
+                val repoInfo = appsRepository.fetchRepoInfo(owner, repo, sourceHost)
                 if (repoInfo == null) {
                     _state.update {
                         it.copy(
@@ -1887,8 +1892,39 @@ class AppsViewModel(
                 _state.update {
                     it.copy(
                         fetchedRepoInfo = repoInfo.toUi(),
+                        linkSourceHost = sourceHost,
                         linkValidationStatus = getString(Res.string.checking_release),
                     )
+                }
+
+                // Forgejo: skip the in-app asset picker for the first PR —
+                // tracker-only flow. Install goes through the user's browser
+                // for now. Picker follow-up will extend getLatestRelease.
+                if (sourceHost != null) {
+                    appsRepository.linkAppToRepo(
+                        deviceApp = selectedApp.toDomain(),
+                        repoInfo = repoInfo,
+                        sourceHost = sourceHost,
+                    )
+                    _state.update {
+                        it.copy(
+                            isValidatingRepo = false,
+                            linkValidationStatus = null,
+                            showLinkSheet = false,
+                        )
+                    }
+                    _events.send(AppsEvent.AppLinkedSuccessfully(selectedApp.appName))
+                    _events.send(
+                        AppsEvent.ShowSuccess(
+                            getString(
+                                Res.string.app_linked_success,
+                                selectedApp.appName,
+                                repoInfo.owner,
+                                repoInfo.name,
+                            ),
+                        ),
+                    )
+                    return@launch
                 }
 
                 val latestRelease =

@@ -25,7 +25,7 @@ interface AppsRepository {
 
     suspend fun getTrackedPackageNames(): Set<String>
 
-    suspend fun fetchRepoInfo(owner: String, repo: String): GithubRepoInfo?
+    suspend fun fetchRepoInfo(owner: String, repo: String, sourceHost: String? = null): GithubRepoInfo?
 
     suspend fun linkAppToRepo(
         deviceApp: DeviceApp,
@@ -71,6 +71,7 @@ interface AppsRepository {
          * installable assets, this index is preferred.
          */
         pickedAssetIndex: Int? = null,
+        sourceHost: String? = null,
     )
 
     suspend fun exportApps(): String

@@ -80,7 +80,11 @@ class AppsRepositoryImpl(
         owner: String,
         repo: String,
         includePreReleases: Boolean,
+        sourceHost: String?,
     ): GithubRelease? {
+        if (sourceHost != null) {
+            return fetchForgejoLatestRelease(sourceHost, owner, repo, includePreReleases)
+        }
         val backendResult = backendApiClient.getReleases(owner, repo, perPage = 10)
         backendResult.fold(
             onSuccess = { releases ->
@@ -551,6 +555,30 @@ class AppsRepositoryImpl(
             failedItems = failed,
             sourceFormat = ImportFormat.OBTAINIUM,
         )
+    }
+
+    private suspend fun fetchForgejoLatestRelease(
+        host: String,
+        owner: String,
+        repo: String,
+        includePreReleases: Boolean,
+    ): GithubRelease? {
+        val client = forgejoClientRegistry.clientFor(host)
+        return try {
+            val releases = client.getReleases(owner, repo, perPage = 10).getOrNull()
+                ?: return null
+            releases
+                .asSequence()
+                .filter { it.draft != true }
+                .filter { includePreReleases || it.prerelease != true }
+                .maxByOrNull { it.publishedAt ?: it.createdAt ?: "" }
+                ?.toDomain()
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error("Forgejo latest-release fetch failed for $host/$owner/$repo: ${e.message}")
+            null
+        }
     }
 
     private suspend fun fetchForgejoRepoInfo(

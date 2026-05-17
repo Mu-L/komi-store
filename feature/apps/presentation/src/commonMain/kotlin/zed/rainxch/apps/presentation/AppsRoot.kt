@@ -986,6 +986,10 @@ fun AppItemCard(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f, fill = false),
                         )
+                        app.sourceHost?.let {
+                            Spacer(Modifier.width(6.dp))
+                            zed.rainxch.apps.presentation.components.SourceChip(host = it)
+                        }
                     }
 
                     when {

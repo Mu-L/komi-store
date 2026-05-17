@@ -1897,39 +1897,9 @@ class AppsViewModel(
                     )
                 }
 
-                // Forgejo: skip the in-app asset picker for the first PR —
-                // tracker-only flow. Install goes through the user's browser
-                // for now. Picker follow-up will extend getLatestRelease.
-                if (sourceHost != null) {
-                    appsRepository.linkAppToRepo(
-                        deviceApp = selectedApp.toDomain(),
-                        repoInfo = repoInfo,
-                        sourceHost = sourceHost,
-                    )
-                    _state.update {
-                        it.copy(
-                            isValidatingRepo = false,
-                            linkValidationStatus = null,
-                            showLinkSheet = false,
-                        )
-                    }
-                    _events.send(AppsEvent.AppLinkedSuccessfully(selectedApp.appName))
-                    _events.send(
-                        AppsEvent.ShowSuccess(
-                            getString(
-                                Res.string.app_linked_success,
-                                selectedApp.appName,
-                                repoInfo.owner,
-                                repoInfo.name,
-                            ),
-                        ),
-                    )
-                    return@launch
-                }
-
                 val latestRelease =
                     try {
-                        appsRepository.getLatestRelease(owner, repo)
+                        appsRepository.getLatestRelease(owner, repo, sourceHost = sourceHost)
                     } catch (e: RateLimitException) {
                         throw e
                     } catch (e: Exception) {
@@ -1938,7 +1908,7 @@ class AppsViewModel(
                     }
 
                 if (latestRelease == null) {
-                    appsRepository.linkAppToRepo(selectedApp.toDomain(), repoInfo)
+                    appsRepository.linkAppToRepo(selectedApp.toDomain(), repoInfo, sourceHost = sourceHost)
                     _state.update {
                         it.copy(
                             isValidatingRepo = false,
@@ -1967,7 +1937,7 @@ class AppsViewModel(
                         .map { it.toUi() }
                         .toImmutableList()
                 if (installableAssets.isEmpty()) {
-                    appsRepository.linkAppToRepo(selectedApp.toDomain(), repoInfo)
+                    appsRepository.linkAppToRepo(selectedApp.toDomain(), repoInfo, sourceHost = sourceHost)
                     _state.update {
                         it.copy(
                             isValidatingRepo = false,
@@ -2067,6 +2037,7 @@ class AppsViewModel(
                     pickedAssetName = asset.name,
                     pickedAssetSiblingCount = siblingCount,
                     pickedAssetIndex = pickedIndex,
+                    sourceHost = _state.value.linkSourceHost,
                 )
                 _state.update {
                     it.copy(

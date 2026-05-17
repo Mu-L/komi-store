@@ -19,6 +19,7 @@ interface AppsRepository {
         owner: String,
         repo: String,
         includePreReleases: Boolean = false,
+        sourceHost: String? = null,
     ): GithubRelease?
 
     suspend fun getDeviceApps(): List<DeviceApp>

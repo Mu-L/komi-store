@@ -7,4 +7,5 @@ fun SearchSourceUi.toDomain(): SearchSource =
     when (this) {
         SearchSourceUi.GitHub -> SearchSource.GitHub
         SearchSourceUi.Codeberg -> SearchSource.Codeberg
+        is SearchSourceUi.CustomForge -> SearchSource.Forgejo(host)
     }

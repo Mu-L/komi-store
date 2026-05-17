@@ -366,12 +366,12 @@ fun SearchScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                items(zed.rainxch.search.presentation.model.SearchSourceUi.entries) { source ->
+                items(state.availableSources) { source ->
                     FilterChip(
                         selected = state.selectedSource == source,
                         label = {
                             Text(
-                                text = source.name,
+                                text = source.label,
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onBackground,

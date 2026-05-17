@@ -36,6 +36,8 @@ data class SearchState(
     val exploreStatus: ExploreStatus = ExploreStatus.IDLE,
     val passthroughAttempted: Boolean? = null,
     val selectedSource: SearchSourceUi = SearchSourceUi.GitHub,
+    val availableSources: ImmutableList<SearchSourceUi> =
+        persistentListOf(SearchSourceUi.GitHub, SearchSourceUi.Codeberg),
 ) {
     enum class ExploreStatus {
         IDLE,

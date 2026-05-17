@@ -16,7 +16,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.json.Json
-import zed.rainxch.core.data.dto.GithubRepoNetworkModel
+import zed.rainxch.core.data.dto.ForgejoRepoNetworkModel
 import zed.rainxch.core.data.dto.ReleaseNetwork
 import zed.rainxch.core.domain.model.ProxyConfig
 import java.io.IOException
@@ -55,7 +55,7 @@ class ForgejoApiClient(
         }
     }
 
-    suspend fun getRepository(owner: String, repo: String): Result<GithubRepoNetworkModel> =
+    suspend fun getRepository(owner: String, repo: String): Result<ForgejoRepoNetworkModel> =
         client.executeRequest {
             get("$baseUrl/repos/$owner/$repo")
         }

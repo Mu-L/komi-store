@@ -164,21 +164,15 @@ private fun ExpandableMarkdownContent(
     val isDark = androidx.compose.foundation.isSystemInDarkTheme()
 
     // Off-main pre-processing — see About.kt for the rationale.
-    var previewContent by remember(raw, isDark) { mutableStateOf<String?>(null) }
     var fullChunks by remember(raw, isDark) { mutableStateOf<List<String>?>(null) }
     LaunchedEffect(raw, isDark) {
         val processed = withContext(Dispatchers.Default) {
             applyThemeAwareImages(raw, isDark)
         }
-        val preview = withContext(Dispatchers.Default) {
-            zed.rainxch.details.presentation.utils
-                .truncateMarkdownPreview(processed, maxChars = 6000)
-        }
         val chunks = withContext(Dispatchers.Default) {
             zed.rainxch.details.presentation.utils
                 .splitMarkdownIntoChunks(processed, targetChunkChars = 4000)
         }
-        previewContent = preview
         fullChunks = chunks
     }
 
@@ -221,7 +215,6 @@ private fun ExpandableMarkdownContent(
             ) {
                 ProgressiveMarkdown(
                     isExpanded = isExpanded,
-                    previewContent = previewContent,
                     fullChunks = fullChunks,
                     collapsedHeight = collapsedHeight,
                     colors = colors,

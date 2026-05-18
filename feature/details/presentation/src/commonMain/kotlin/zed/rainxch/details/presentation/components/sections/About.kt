@@ -159,29 +159,21 @@ fun ExpandableMarkdownContent(
     // is regex-heavy; running it inside `remember { ... }` happened on the
     // composition thread (typically Main) and contributed to the visible
     // freeze on first render and theme toggle. We launch it on Default and
-    // gate rendering on completion via `displayContent` being non-null.
-    var previewContent by remember(rawMarkdown, isDark) { mutableStateOf<String?>(null) }
+    // gate rendering on completion via `fullChunks` being non-null.
+    //
+    // We split the full body into ~4 000-char chunks (kept whole around
+    // code fences). Chunk 0 doubles as the collapsed preview; subsequent
+    // chunks stream in one frame at a time once the user taps Expand.
+    // Crucially, chunk 0 stays mounted across collapse → expand, so the
+    // transition is a height grow rather than a content swap — no flicker.
     var fullChunks by remember(rawMarkdown, isDark) { mutableStateOf<List<String>?>(null) }
     LaunchedEffect(rawMarkdown, isDark) {
         val processed = withContext(Dispatchers.Default) {
             applyThemeAwareImages(rawMarkdown, isDark)
         }
-        // Light truncated version for the collapsed state — first ~6000 chars
-        // truncated at a paragraph boundary. Renders far fewer markdown nodes
-        // (cheap initial composition); the full body is only progressively
-        // streamed in once the user taps "Read more".
-        val preview = withContext(Dispatchers.Default) {
-            truncateMarkdownPreview(processed, maxChars = 6000)
-        }
-        // Pre-split the full body into ~4 000-char chunks (kept whole around
-        // code fences) so the expanded view can compose them one frame at a
-        // time instead of dropping a single multi-megabyte composition pass
-        // on Main when the user taps Expand. Observed Davey of 4.4s on a
-        // big README — this distributes that across many frames.
         val chunks = withContext(Dispatchers.Default) {
             splitMarkdownIntoChunks(processed, targetChunkChars = 4000)
         }
-        previewContent = preview
         fullChunks = chunks
     }
 
@@ -227,7 +219,6 @@ fun ExpandableMarkdownContent(
             ) {
                 ProgressiveMarkdown(
                     isExpanded = isExpanded,
-                    previewContent = previewContent,
                     fullChunks = fullChunks,
                     collapsedHeight = collapsedHeight,
                     colors = colors,
@@ -281,11 +272,15 @@ fun ExpandableMarkdownContent(
 }
 
 /**
- * Streams `fullChunks` into the composition one chunk per frame when
- * `isExpanded` flips true. Renders `previewContent` when collapsed.
+ * Renders chunked markdown progressively. Chunk 0 is always mounted
+ * (used as the collapsed-state preview, clipped by the parent's
+ * `Modifier.height(collapsedHeight)` modifier). When `isExpanded` flips
+ * true, subsequent chunks stream in one frame at a time without
+ * unmounting / remounting chunk 0 — that stable identity is what kills
+ * the previous expand-time flicker.
  *
  * Each chunk is its own `Markdown(...)` composable with its own
- * `MarkdownState` (parser still runs on `Dispatchers.Default` per the
+ * `MarkdownState` (parser runs on `Dispatchers.Default` per the
  * mikepenz lib). The "one per frame" cadence keeps composition cost
  * predictable instead of dropping the entire body's compose pass on
  * Main in a single 4-second hit (observed Davey on a kubernetes-sized
@@ -294,7 +289,6 @@ fun ExpandableMarkdownContent(
 @Composable
 internal fun ProgressiveMarkdown(
     isExpanded: Boolean,
-    previewContent: String?,
     fullChunks: List<String>?,
     collapsedHeight: Dp,
     colors: com.mikepenz.markdown.model.MarkdownColors,
@@ -308,8 +302,8 @@ internal fun ProgressiveMarkdown(
     collapsedHeightPx: Float,
     rawKey: String,
 ) {
-    val isLoading = previewContent == null && fullChunks == null
-    if (isLoading) {
+    val chunks = fullChunks
+    if (chunks == null) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -321,52 +315,35 @@ internal fun ProgressiveMarkdown(
         return
     }
 
-    if (!isExpanded) {
-        val content = previewContent ?: fullChunks?.firstOrNull() ?: return
-        val markdownState = rememberMarkdownState(
-            content = content,
-            flavour = flavour,
-            parser = parser,
-            retainState = true,
-        )
-        var lastReportedPx by remember(rawKey) { mutableStateOf(0f) }
-        Markdown(
-            markdownState = markdownState,
-            colors = colors,
-            typography = typography,
-            imageTransformer = imageTransformer,
-            components = components,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onSizeChanged { size ->
-                    val measured = size.height.toFloat()
-                    val decisive = effectiveHeight > collapsedHeightPx
-                    if (decisive) return@onSizeChanged
-                    if (abs(measured - lastReportedPx) < 1f) return@onSizeChanged
-                    lastReportedPx = measured
-                    if (measured > effectiveHeight) onMeasured(measured)
-                },
-        )
-        return
-    }
-
-    val chunks = fullChunks ?: return
-    // Counter starts at 1 so the first chunk renders synchronously on
-    // expand (instant feedback) and the rest stream in one per frame.
+    // Counter starts at 1 so chunk 0 (the natural preview) renders
+    // immediately for the collapsed view. Once the user expands, the
+    // remaining chunks stream in one frame at a time.
     var renderedCount by remember(rawKey) { mutableStateOf(1) }
-    LaunchedEffect(rawKey, chunks.size) {
+    LaunchedEffect(rawKey, isExpanded, chunks.size) {
+        if (!isExpanded) return@LaunchedEffect
         while (renderedCount < chunks.size) {
             // Yield to the frame so the previously-added chunk has a chance
             // to compose + layout + draw before the next chunk arrives.
-            // `delay(16)` would also work; yield is cheaper and lets us
-            // catch up faster on idle frames.
             kotlinx.coroutines.yield()
             renderedCount++
         }
     }
-    Column(modifier = Modifier.fillMaxWidth()) {
-        val toRender = chunks.take(renderedCount.coerceAtMost(chunks.size))
-        toRender.forEachIndexed { index, chunk ->
+
+    var lastReportedPx by remember(rawKey) { mutableStateOf(0f) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onSizeChanged { size ->
+                val measured = size.height.toFloat()
+                val decisive = effectiveHeight > collapsedHeightPx
+                if (decisive) return@onSizeChanged
+                if (abs(measured - lastReportedPx) < 1f) return@onSizeChanged
+                lastReportedPx = measured
+                if (measured > effectiveHeight) onMeasured(measured)
+            },
+    ) {
+        val visible = chunks.take(renderedCount.coerceAtMost(chunks.size))
+        visible.forEachIndexed { index, chunk ->
             androidx.compose.runtime.key(rawKey, index) {
                 val markdownState = rememberMarkdownState(
                     content = chunk,
@@ -384,7 +361,7 @@ internal fun ProgressiveMarkdown(
                 )
             }
         }
-        if (renderedCount < chunks.size) {
+        if (isExpanded && renderedCount < chunks.size) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -34,6 +34,8 @@ import zed.rainxch.core.domain.system.RepoMatchResult
 import zed.rainxch.core.domain.system.RepoMatchSource
 import zed.rainxch.core.domain.system.RepoMatchSuggestion
 import zed.rainxch.core.domain.system.ScanResult
+import zed.rainxch.core.data.secure.safeGet
+import zed.rainxch.core.data.secure.safePut
 
 class ExternalImportRepositoryImpl(
     private val scanner: ExternalAppScanner,
@@ -66,7 +68,7 @@ class ExternalImportRepositoryImpl(
     override suspend fun scheduleInitialScanIfNeeded() {
         migrateLegacyInitialScanFlag()
         val firstLaunch = runCatching {
-            ksafe.get<Long?>(K_INITIAL_SCAN_AT, null)
+            ksafe.safeGet<Long?>(K_INITIAL_SCAN_AT, null)
         }.getOrNull() == null
         runCatching {
             if (firstLaunch) {
@@ -473,17 +475,17 @@ class ExternalImportRepositoryImpl(
     override suspend fun isPermissionGranted(): Boolean = scanner.isPermissionGranted()
 
     private suspend fun markInitialScanComplete() {
-        ksafe.put(K_INITIAL_SCAN_AT, nowMillis())
+        ksafe.safePut(K_INITIAL_SCAN_AT, nowMillis())
     }
 
     private suspend fun migrateLegacyInitialScanFlag() {
-        val existing = runCatching { ksafe.get<Long?>(K_INITIAL_SCAN_AT, null) }.getOrNull()
+        val existing = runCatching { ksafe.safeGet<Long?>(K_INITIAL_SCAN_AT, null) }.getOrNull()
         if (existing != null) return
         val legacyValue = runCatching {
             legacyDataStore.data.first()[longPreferencesKey("external_import_initial_scan_at")]
         }.getOrNull() ?: return
-        val putResult = runCatching { ksafe.put(K_INITIAL_SCAN_AT, legacyValue) }
-        if (putResult.isFailure) return
+        val putOk = ksafe.safePut(K_INITIAL_SCAN_AT, legacyValue)
+        if (!putOk) return
         runCatching {
             legacyDataStore.edit { it.remove(longPreferencesKey("external_import_initial_scan_at")) }
         }

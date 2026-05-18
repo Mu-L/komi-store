@@ -181,8 +181,14 @@ private fun ExpandableMarkdownContent(
     val typography = rememberMarkdownTypography()
     val flavour = remember { GFMFlavourDescriptor() }
     val parser = remember(flavour) { MarkdownParser(flavour) }
-    val components = remember(isDark) {
-        githubStoreMarkdownComponents(MarkdownImageTransformer, isDark)
+    val probeClient = org.koin.compose.koinInject<io.ktor.client.HttpClient>(
+        qualifier = org.koin.core.qualifier.named("test"),
+    )
+    val imageTransformer = remember(probeClient) {
+        MarkdownImageTransformer(probeClient)
+    }
+    val components = remember(isDark, imageTransformer) {
+        githubStoreMarkdownComponents(imageTransformer, isDark)
     }
     val cardColor = MaterialTheme.colorScheme.surfaceContainerLow
 
@@ -222,7 +228,7 @@ private fun ExpandableMarkdownContent(
                     components = components,
                     flavour = flavour,
                     parser = parser,
-                    imageTransformer = MarkdownImageTransformer,
+                    imageTransformer = imageTransformer,
                     onMeasured = onMeasured,
                     effectiveHeight = effectiveHeight,
                     collapsedHeightPx = collapsedHeightPx,

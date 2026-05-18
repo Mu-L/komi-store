@@ -120,13 +120,19 @@ fun LazyListScope.about(
                 readmeMarkdown
             }
         val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+        val probeClient = org.koin.compose.koinInject<io.ktor.client.HttpClient>(
+            qualifier = org.koin.core.qualifier.named("test"),
+        )
+        val imageTransformer = remember(probeClient) {
+            MarkdownImageTransformer(probeClient)
+        }
 
         ExpandableMarkdownContent(
             rawMarkdown = raw,
             isDark = isDark,
             isExpanded = isExpanded,
             onToggleExpanded = onToggleExpanded,
-            imageTransformer = MarkdownImageTransformer,
+            imageTransformer = imageTransformer,
             collapsedHeight = collapsedHeight,
             measuredHeightPx = measuredHeightPx,
             onMeasured = onMeasured,

@@ -53,6 +53,7 @@ import zed.rainxch.details.presentation.model.TranslationState
 import zed.rainxch.details.presentation.utils.MarkdownImageTransformer
 import zed.rainxch.details.presentation.utils.rememberMarkdownColors
 import zed.rainxch.details.presentation.utils.rememberMarkdownTypography
+import zed.rainxch.details.presentation.utils.truncateMarkdownPreview
 import zed.rainxch.githubstore.core.presentation.res.*
 
 fun LazyListScope.about(
@@ -159,10 +160,19 @@ fun ExpandableMarkdownContent(
     // freeze on first render and theme toggle. We launch it on Default and
     // gate rendering on completion via `displayContent` being non-null.
     var displayContent by remember(rawMarkdown, isDark) { mutableStateOf<String?>(null) }
+    var previewContent by remember(rawMarkdown, isDark) { mutableStateOf<String?>(null) }
     LaunchedEffect(rawMarkdown, isDark) {
         val processed = withContext(Dispatchers.Default) {
             applyThemeAwareImages(rawMarkdown, isDark)
         }
+        // Light truncated version for the collapsed state — first ~6000 chars
+        // truncated at a paragraph boundary. Renders far fewer markdown nodes
+        // (cheap initial composition); the full string is only handed to the
+        // renderer once the user taps "Read more".
+        val preview = withContext(Dispatchers.Default) {
+            truncateMarkdownPreview(processed, maxChars = 6000)
+        }
+        previewContent = preview
         displayContent = processed
     }
 
@@ -206,7 +216,14 @@ fun ExpandableMarkdownContent(
                         else -> Modifier
                     },
             ) {
-                val content = displayContent
+                // When collapsed, render the truncated preview — far cheaper
+                // composition than the full markdown tree. Switch to the full
+                // tree only when the user expands.
+                val content = when {
+                    isExpanded -> displayContent
+                    !isExpanded && previewContent != null -> previewContent
+                    else -> displayContent
+                }
                 if (content == null) {
                     // Pre-processing in flight. Show a small spinner clamped
                     // to the collapsed-section height so the scroll position

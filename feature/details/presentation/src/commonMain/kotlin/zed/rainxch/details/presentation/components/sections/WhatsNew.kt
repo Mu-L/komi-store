@@ -165,10 +165,16 @@ private fun ExpandableMarkdownContent(
 
     // Off-main pre-processing — see About.kt for the rationale.
     var displayContent by remember(raw, isDark) { mutableStateOf<String?>(null) }
+    var previewContent by remember(raw, isDark) { mutableStateOf<String?>(null) }
     LaunchedEffect(raw, isDark) {
         val processed = withContext(Dispatchers.Default) {
             applyThemeAwareImages(raw, isDark)
         }
+        val preview = withContext(Dispatchers.Default) {
+            zed.rainxch.details.presentation.utils
+                .truncateMarkdownPreview(processed, maxChars = 6000)
+        }
+        previewContent = preview
         displayContent = processed
     }
 
@@ -209,7 +215,11 @@ private fun ExpandableMarkdownContent(
                         else -> Modifier
                     },
             ) {
-                val content = displayContent
+                val content = when {
+                    isExpanded -> displayContent
+                    !isExpanded && previewContent != null -> previewContent
+                    else -> displayContent
+                }
                 if (content == null) {
                     Box(
                         modifier = Modifier

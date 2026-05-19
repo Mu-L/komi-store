@@ -56,6 +56,7 @@ class ExternalImportViewModel(
     private val installedAppsRepository: InstalledAppsRepository,
     private val telemetry: TelemetryRepository,
     private val logger: GitHubStoreLogger,
+    private val tweaksRepository: zed.rainxch.core.domain.repository.TweaksRepository,
 ) : ViewModel() {
     private var candidatesByPackage: Map<String, ExternalAppCandidate> = emptyMap()
     // Cached so OnAutoSummaryUndoAll can re-build cards for previously
@@ -326,51 +327,59 @@ class ExternalImportViewModel(
             return
         }
 
-        // Fast-path: a github.com/owner/repo URL bypasses the search API and
-        // surfaces a single MANUAL suggestion that the user can tap to link.
-        // This unblocks users with rate-limited search and matches Obtainium's
-        // "paste a URL" mental model.
-        parseGithubRepoUrl(query)?.let { (owner, repo) ->
-            searchJob?.cancel()
-            _state.update {
-                it.copy(
-                    isSearching = false,
-                    searchError = null,
-                    searchResults = persistentListOf(
-                        RepoSuggestionUi(
-                            owner = owner,
-                            repo = repo,
-                            confidence = 1.0,
-                            source = SuggestionSource.MANUAL,
-                            stars = null,
-                            description = null,
-                        ),
-                    ),
-                )
-            }
-            viewModelScope.launch { runCatching { telemetry.importSearchOverrideUsed() } }
-            return
-        }
-
+        // Fast-path: a host/owner/repo URL bypasses the search API and
+        // surfaces a single MANUAL suggestion that the user can tap to
+        // link. Accepts GitHub, Codeberg, known Forgejo / Gitea hosts,
+        // and anything the user has added under Tweaks → Network →
+        // Custom forges. Matches Obtainium's "paste a URL" mental model.
         searchJob?.cancel()
         _state.update { it.copy(isSearching = true, searchError = null) }
-        viewModelScope.launch { runCatching { telemetry.importSearchOverrideUsed() } }
         searchJob = viewModelScope.launch {
+            val customHosts = runCatching {
+                tweaksRepository.getCustomForgeHosts().first()
+            }.getOrElse { emptySet() }
+            val parsed = zed.rainxch.core.domain.util.RepositoryUrlParser
+                .parse(query, customHosts)
+            if (parsed != null) {
+                val sourceHost = when (val src = parsed.source) {
+                    zed.rainxch.core.domain.model.RepositorySource.GitHub -> null
+                    is zed.rainxch.core.domain.model.RepositorySource.Forgejo -> src.host
+                }
+                _state.update {
+                    if (it.activeSearchPackage != packageName) it
+                    else it.copy(
+                        isSearching = false,
+                        searchError = null,
+                        searchResults = persistentListOf(
+                            RepoSuggestionUi(
+                                owner = parsed.owner,
+                                repo = parsed.repo,
+                                confidence = 1.0,
+                                source = SuggestionSource.MANUAL,
+                                stars = null,
+                                description = null,
+                                sourceHost = sourceHost,
+                            ),
+                        ),
+                    )
+                }
+                runCatching { telemetry.importSearchOverrideUsed() }
+                return@launch
+            }
+
+            // Not a URL — backend free-text search.
+            runCatching { telemetry.importSearchOverrideUsed() }
             val result = runCatching { externalImportRepository.searchRepos(query) }
                 .getOrElse { e ->
                     if (e is CancellationException) throw e
                     Result.failure(e)
                 }
-
             result.fold(
                 onSuccess = { suggestions ->
                     if (suggestions.isEmpty()) {
                         runCatching { telemetry.importSearchOverrideNoResults() }
                     }
                     _state.update {
-                        // Stale-completion guard: if the user collapsed or switched cards
-                        // while the request was in flight, drop the response on the floor
-                        // so old results never bleed into a newly-active card.
                         if (it.activeSearchPackage != packageName) it
                         else it.copy(
                             isSearching = false,
@@ -493,7 +502,13 @@ class ExternalImportViewModel(
             val snapshot = snapshotResult.getOrNull()
             val hadInstalledRow = installedAppsRepository.getAppByPackage(packageName) != null
 
-            val materialized = materializeAndMark(candidate, suggestion.owner, suggestion.repo, source)
+            val materialized = materializeAndMark(
+                candidate,
+                suggestion.owner,
+                suggestion.repo,
+                source,
+                suggestion.sourceHost,
+            )
             if (!materialized) {
                 _events.send(
                     ExternalImportEvent.ShowError(
@@ -826,6 +841,7 @@ class ExternalImportViewModel(
                     owner = top.owner,
                     repo = top.repo,
                     source = "auto-${top.source.name.lowercase()}",
+                    sourceHost = top.sourceHost,
                 )
             if (ok) {
                 linked += result.packageName
@@ -843,10 +859,11 @@ class ExternalImportViewModel(
         owner: String,
         repo: String,
         source: String,
+        sourceHost: String? = null,
     ): Boolean {
         val repoInfo =
             try {
-                appsRepository.fetchRepoInfo(owner, repo)
+                appsRepository.fetchRepoInfo(owner, repo, sourceHost)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -860,7 +877,7 @@ class ExternalImportViewModel(
 
         val deviceApp = candidate.toDeviceApp()
         try {
-            appsRepository.linkAppToRepo(deviceApp, repoInfo)
+            appsRepository.linkAppToRepo(deviceApp, repoInfo, sourceHost = sourceHost)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -952,6 +969,7 @@ class ExternalImportViewModel(
                 },
             stars = stars,
             description = description,
+            sourceHost = sourceHost,
         )
 
     private suspend fun InstallerKind.toUiLabel(): String =

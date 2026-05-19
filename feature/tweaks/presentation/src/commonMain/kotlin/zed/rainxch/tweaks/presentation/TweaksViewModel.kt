@@ -1034,14 +1034,34 @@ class TweaksViewModel(
                     return
                 }
                 viewModelScope.launch {
-                    runCatching { tweaksRepository.addCustomForgeHost(raw) }
-                    _state.update { it.copy(customForgeDraft = "", customForgeError = null) }
+                    val result = runCatching { tweaksRepository.addCustomForgeHost(raw) }
+                    if (result.isSuccess) {
+                        _state.update { it.copy(customForgeDraft = "", customForgeError = null) }
+                    } else {
+                        // Surface persistence failure (KSafe write
+                        // rejected by hardware-backed Keystore, etc.)
+                        // instead of silently clearing the draft.
+                        _state.update {
+                            it.copy(
+                                customForgeError = result.exceptionOrNull()?.message
+                                    ?: "Couldn't save the host. Try again.",
+                            )
+                        }
+                    }
                 }
             }
 
             is TweaksAction.OnRemoveCustomForge -> {
                 viewModelScope.launch {
-                    runCatching { tweaksRepository.removeCustomForgeHost(action.host) }
+                    val result = runCatching { tweaksRepository.removeCustomForgeHost(action.host) }
+                    if (result.isFailure) {
+                        _state.update {
+                            it.copy(
+                                customForgeError = result.exceptionOrNull()?.message
+                                    ?: "Couldn't remove the host. Try again.",
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -91,6 +91,17 @@ class ForgejoApiClient(
             }
         }
 
+    /**
+     * Release the underlying Ktor HttpClient + its engine. Called by
+     * [ForgejoClientRegistry] when the registry shuts down OR when the
+     * cached client is invalidated (proxy config change). Without this
+     * the engine's connection pool + dispatcher stay alive for the rest
+     * of the process.
+     */
+    fun close() {
+        runCatching { client.close() }
+    }
+
     companion object {
         private val JSON = Json {
             ignoreUnknownKeys = true

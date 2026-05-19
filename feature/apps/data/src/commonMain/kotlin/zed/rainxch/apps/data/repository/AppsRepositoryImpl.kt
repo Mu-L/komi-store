@@ -34,6 +34,7 @@ import zed.rainxch.core.domain.model.ExportedApp
 import zed.rainxch.core.domain.model.ExportedAppList
 import zed.rainxch.core.domain.model.GithubRelease
 import zed.rainxch.core.domain.model.InstallSource
+import zed.rainxch.core.domain.model.isEffectivelyPreRelease
 import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.model.RateLimitException
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
@@ -570,9 +571,15 @@ class AppsRepositoryImpl(
             releases
                 .asSequence()
                 .filter { it.draft != true }
-                .filter { includePreReleases || it.prerelease != true }
-                .maxByOrNull { it.publishedAt ?: it.createdAt ?: "" }
-                ?.toDomain()
+                .map { it.toDomain() }
+                .filter {
+                    // Use the same tag-aware pre-release filter as the
+                    // GitHub path (`InstalledAppsRepositoryImpl`) so a
+                    // `v2.0.0-rc1` release with a `prerelease: false`
+                    // flag is still correctly excluded.
+                    includePreReleases || !it.isEffectivelyPreRelease()
+                }
+                .maxByOrNull { it.publishedAt }
         } catch (e: kotlin.coroutines.cancellation.CancellationException) {
             throw e
         } catch (e: Exception) {

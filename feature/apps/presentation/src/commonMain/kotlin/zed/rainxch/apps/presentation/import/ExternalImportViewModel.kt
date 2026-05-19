@@ -944,6 +944,11 @@ class ExternalImportViewModel(
                     RepoMatchSource.SEARCH -> SuggestionSource.SEARCH
                     RepoMatchSource.FINGERPRINT -> SuggestionSource.FINGERPRINT
                     RepoMatchSource.MANUAL -> SuggestionSource.MANUAL
+                    // Forgejo hits map to the same UI bucket as GitHub
+                    // search hits — both are free-text matches against
+                    // a remote registry; the differentiator is the
+                    // sourceHost field on the suggestion itself.
+                    RepoMatchSource.FORGEJO_SEARCH -> SuggestionSource.SEARCH
                 },
             stars = stars,
             description = description,

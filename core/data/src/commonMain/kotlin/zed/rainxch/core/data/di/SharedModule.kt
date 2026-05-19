@@ -303,6 +303,8 @@ val coreModule =
                 externalMatchApi = get(),
                 backendClient = get(),
                 telemetry = get(),
+                forgejoClientRegistry = get(),
+                tweaksRepository = get(),
             )
         }
 

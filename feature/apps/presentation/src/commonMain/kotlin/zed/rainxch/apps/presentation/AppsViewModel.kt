@@ -379,9 +379,10 @@ class AppsViewModel(
             }
 
             is AppsAction.OnLinkSuggestionSelected -> {
+                val baseHost = action.sourceHost ?: "github.com"
                 _state.update {
                     it.copy(
-                        repoUrl = "https://github.com/${action.owner}/${action.repo}",
+                        repoUrl = "https://$baseHost/${action.owner}/${action.repo}",
                         repoValidationError = null,
                     )
                 }

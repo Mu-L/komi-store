@@ -46,6 +46,8 @@ class ExternalImportRepositoryImpl(
     private val externalMatchApi: ExternalMatchApi,
     private val backendClient: BackendApiClient,
     private val telemetry: TelemetryRepository,
+    private val forgejoClientRegistry: zed.rainxch.core.data.network.ForgejoClientRegistry,
+    private val tweaksRepository: zed.rainxch.core.domain.repository.TweaksRepository,
 ) : ExternalImportRepository {
     // Snapshot cache survives only for the lifetime of the process. Decisions
     // (linked / skipped / never-ask) are persisted in `external_links`; the
@@ -236,6 +238,27 @@ class ExternalImportRepositoryImpl(
                 }
         }
 
+        // Strategy 4: query each configured Forgejo / Codeberg host using
+        // the app label as a free-text search term. We always include the
+        // canonical Codeberg + Gitea hosts; user-added hosts come from
+        // TweaksRepository. Cheap fail-soft — any host that errors just
+        // contributes no suggestions.
+        val forgejoHits = mutableMapOf<String, MutableList<RepoMatchSuggestion>>()
+        val forgejoHostList = forgejoSearchHosts()
+        if (forgejoHostList.isNotEmpty()) {
+            for (candidate in candidates) {
+                val query = candidate.appLabel.trim().takeIf { it.isNotEmpty() } ?: continue
+                for (host in forgejoHostList) {
+                    val matches = searchForgejoHostForSuggestions(host, query)
+                    if (matches.isNotEmpty()) {
+                        forgejoHits
+                            .getOrPut(candidate.packageName) { mutableListOf() }
+                            .addAll(matches)
+                    }
+                }
+            }
+        }
+
         return candidates.map { candidate ->
             val suggestions = mutableListOf<RepoMatchSuggestion>()
             candidate.manifestHint?.let { hint ->
@@ -248,8 +271,12 @@ class ExternalImportRepositoryImpl(
             }
             fingerprintHits[candidate.packageName]?.let { suggestions += it }
             backendResults[candidate.packageName]?.let { suggestions += it }
+            forgejoHits[candidate.packageName]?.let { suggestions += it }
             val deduped = suggestions
-                .distinctBy { "${it.owner}/${it.repo}" }
+                // Dedup across hosts too — a repo can legitimately exist
+                // on both Codeberg and a mirror, but for suggestions we
+                // only want one row per logical {host, owner, repo}.
+                .distinctBy { "${it.sourceHost ?: "github"}|${it.owner}/${it.repo}" }
                 .sortedByDescending { it.confidence }
 
             // Emit one `import_match_attempted` per strategy that
@@ -591,17 +618,84 @@ class ExternalImportRepositoryImpl(
             else -> "network"
         }
 
+    /**
+     * Canonical Forgejo hosts we always probe (Codeberg + the public
+     * Gitea/Forgejo demo instances) merged with whatever the user added
+     * under Tweaks → Network → Custom forges. We cap the merged set at
+     * 5 hosts to bound concurrent fanout per match attempt — extra
+     * hosts are dropped silently rather than queued.
+     */
+    private suspend fun forgejoSearchHosts(): List<String> {
+        val canonical = listOf("codeberg.org")
+        val user = runCatching { tweaksRepository.getCustomForgeHosts().first() }
+            .getOrNull()
+            .orEmpty()
+        return (canonical + user).distinct().take(FORGEJO_SEARCH_MAX_HOSTS)
+    }
+
+    private suspend fun searchForgejoHostForSuggestions(
+        host: String,
+        query: String,
+    ): List<RepoMatchSuggestion> {
+        return try {
+            val client = forgejoClientRegistry.clientFor(host)
+            val response = client.searchRepositories(
+                query = query,
+                page = 1,
+                limit = FORGEJO_SEARCH_LIMIT,
+            ).getOrNull() ?: return emptyList()
+            response.data
+                .orEmpty()
+                .take(FORGEJO_SEARCH_LIMIT)
+                .mapIndexed { index, repo ->
+                    // Confidence falls off with rank so the top hit on
+                    // a given host outranks lower hits — but stays
+                    // below the high-confidence GitHub strategies so
+                    // manifest / fingerprint / backend matches still
+                    // sort above when present.
+                    val confidence = FORGEJO_SEARCH_BASE_CONFIDENCE -
+                        (index * FORGEJO_SEARCH_RANK_DECAY)
+                    RepoMatchSuggestion(
+                        owner = repo.owner.login,
+                        repo = repo.name,
+                        confidence = confidence.coerceAtLeast(0.05),
+                        source = RepoMatchSource.FORGEJO_SEARCH,
+                        stars = repo.starsCount,
+                        description = repo.description,
+                        sourceHost = host,
+                    )
+                }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Logger.d { "Forgejo search on $host for '$query' failed: ${e.message}" }
+            emptyList()
+        }
+    }
+
     private fun RepoMatchSource.telemetryStrategy(): String =
         when (this) {
             RepoMatchSource.MANIFEST -> "manifest"
             RepoMatchSource.SEARCH -> "search"
             RepoMatchSource.FINGERPRINT -> "fingerprint"
             RepoMatchSource.MANUAL -> "manual"
+            RepoMatchSource.FORGEJO_SEARCH -> "forgejo_search"
         }
 
     companion object {
         private const val K_INITIAL_SCAN_AT = "external_import_initial_scan_at"
         private const val SKIP_TTL_MILLIS: Long = 7L * 24 * 60 * 60 * 1000
+
+        // Bounds the per-match fanout so a user with many custom forges
+        // doesn't trigger a many-way HTTP burst on every smart-match.
+        private const val FORGEJO_SEARCH_MAX_HOSTS = 5
+        private const val FORGEJO_SEARCH_LIMIT = 5
+
+        // Sits below the high-confidence GitHub strategies (manifest /
+        // fingerprint / backend) but above zero so Forgejo hits still
+        // surface when nothing else matched.
+        private const val FORGEJO_SEARCH_BASE_CONFIDENCE = 0.55
+        private const val FORGEJO_SEARCH_RANK_DECAY = 0.08
         private const val MATCH_BATCH_SIZE = 25
         private const val FINGERPRINT_CONFIDENCE = 0.92
         private const val SEARCH_OVERRIDE_CONFIDENCE = 0.5

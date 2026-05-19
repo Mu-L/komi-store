@@ -7,6 +7,9 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import co.touchlab.kermit.Logger
 import eu.anifantakis.lib.ksafe.KSafe
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -264,26 +267,61 @@ class ExternalImportRepositoryImpl(
             tweaksRepository.getCustomForgeHosts().first().isNotEmpty()
         }.getOrDefault(false)
         if (forgejoHostList.isNotEmpty()) {
-            var budget = if (hasUserHosts) FORGEJO_SEARCH_CANDIDATE_BUDGET * 2 else FORGEJO_SEARCH_CANDIDATE_BUDGET
-            for (candidate in candidates) {
-                if (budget <= 0) break
-                // Skip candidates that already have a strong GitHub hit
-                // — Forgejo results would only sit below them anyway.
-                val existingTopConfidence = listOfNotNull(
-                    candidate.manifestHint?.confidence,
-                    fingerprintHits[candidate.packageName]?.confidence,
-                    backendResults[candidate.packageName]?.maxOfOrNull { it.confidence },
-                ).maxOrNull() ?: 0.0
-                if (existingTopConfidence >= FORGEJO_SEARCH_SKIP_THRESHOLD) continue
+            val totalBudget = if (hasUserHosts) FORGEJO_SEARCH_CANDIDATE_BUDGET * 2 else FORGEJO_SEARCH_CANDIDATE_BUDGET
+            // Build the list of (candidate, query) pairs eligible for
+            // Forgejo search, applying the skip-threshold filter and
+            // candidate budget *before* we issue any HTTP.
+            val eligible = candidates.asSequence()
+                .filter { candidate ->
+                    val existing = listOfNotNull(
+                        candidate.manifestHint?.confidence,
+                        fingerprintHits[candidate.packageName]?.confidence,
+                        backendResults[candidate.packageName]?.maxOfOrNull { it.confidence },
+                    ).maxOrNull() ?: 0.0
+                    existing < FORGEJO_SEARCH_SKIP_THRESHOLD
+                }
+                .mapNotNull { candidate ->
+                    val query = candidate.appLabel.trim().takeIf { it.isNotEmpty() }
+                    if (query == null) null else candidate to query
+                }
+                .take(totalBudget)
+                .toList()
 
-                val query = candidate.appLabel.trim().takeIf { it.isNotEmpty() } ?: continue
-                budget--
-                for (host in forgejoHostList) {
-                    val matches = searchForgejoHostForSuggestions(host, query)
-                    if (matches.isNotEmpty()) {
-                        forgejoHits
-                            .getOrPut(candidate.packageName) { mutableListOf() }
-                            .addAll(matches)
+            // Cross-product (eligibleCandidate × host) flattened into a
+            // single list, then fanned out in parallel using a bounded
+            // semaphore so we don't open more than N concurrent HTTP
+            // sockets at once. Per-call timeout caps tail latency from
+            // a slow host so a single dead instance can't drag the
+            // whole scan past the user's patience threshold.
+            data class SearchTask(
+                val packageName: String,
+                val host: String,
+                val query: String,
+            )
+            val tasks = eligible.flatMap { (candidate, query) ->
+                forgejoHostList.map { host ->
+                    SearchTask(candidate.packageName, host, query)
+                }
+            }
+            if (tasks.isNotEmpty()) {
+                val sem = kotlinx.coroutines.sync.Semaphore(FORGEJO_SEARCH_CONCURRENCY)
+                kotlinx.coroutines.coroutineScope {
+                    val deferred = tasks.map { task ->
+                        async {
+                            sem.withPermit {
+                                val hits = kotlinx.coroutines.withTimeoutOrNull(FORGEJO_SEARCH_PER_CALL_TIMEOUT_MS) {
+                                    searchForgejoHostForSuggestions(task.host, task.query)
+                                }.orEmpty()
+                                task to hits
+                            }
+                        }
+                    }
+                    deferred.awaitAll().forEach { (task, hits) ->
+                        if (hits.isNotEmpty()) {
+                            forgejoHits
+                                .getOrPut(task.packageName) { mutableListOf() }
+                                .addAll(hits)
+                        }
                     }
                 }
             }
@@ -738,6 +776,20 @@ class ExternalImportRepositoryImpl(
         // suggestion list and a remote search would be pure waste. 0.7
         // matches the backend's "confident" bucket.
         private const val FORGEJO_SEARCH_SKIP_THRESHOLD = 0.7
+
+        // Concurrency cap for the parallel fanout — each permit holds
+        // one open HTTP socket. 8 keeps us well below mobile network
+        // stacks' typical 10–16 socket cap and the per-host Forgejo
+        // rate limit (2000 / 300s) at 26 req/s burst headroom even if
+        // every permit hits the same host (which they won't, since
+        // tasks alternate hosts in interleaved order).
+        private const val FORGEJO_SEARCH_CONCURRENCY = 8
+
+        // Hard per-call timeout. The shared HttpClient still has a 60s
+        // request timeout for the install path; this is a tighter
+        // wrapper just for smart-match so a single slow / dead host
+        // doesn't drag the scan latency to the floor.
+        private const val FORGEJO_SEARCH_PER_CALL_TIMEOUT_MS = 4_000L
 
         // Sits below the high-confidence GitHub strategies (manifest /
         // fingerprint / backend) but above zero so Forgejo hits still

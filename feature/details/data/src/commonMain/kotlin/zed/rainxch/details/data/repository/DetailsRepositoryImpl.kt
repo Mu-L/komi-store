@@ -725,14 +725,23 @@ class DetailsRepositoryImpl(
         repo: String,
         sourceHost: String,
     ): List<GithubRelease> {
-        val cacheKey = "details:releases:forgejo:$sourceHost:$owner/$repo"
+        // v2 — release `body` is now pre-processed (CRLF → LF + relative
+        // URL rewrite to the Forgejo raw endpoint). Previously the raw
+        // CRLF bodies broke GFM table parsing in the markdown renderer
+        // (Gadgetbridge changelog tables rendered as literal pipes).
+        val cacheKey = "details:releases:forgejo:v2:$sourceHost:$owner/$repo"
         cacheManager.get<List<GithubRelease>>(cacheKey)?.takeIf { it.isNotEmpty() }?.let { return it }
         val client = forgejoClientRegistry.clientFor(sourceHost)
         return try {
             val releases = client.getReleases(owner, repo).getOrNull().orEmpty()
             val result = releases
                 .filter { it.draft != true }
-                .map { it.toDomain() }
+                .map { network ->
+                    val processedBody = network.body?.let {
+                        processForgejoBody(it, sourceHost, owner, repo)
+                    }
+                    network.copy(body = processedBody).toDomain()
+                }
                 .sortedByDescending { it.publishedAt }
             if (result.isNotEmpty()) cacheManager.put(cacheKey, result, RELEASES)
             result
@@ -740,6 +749,22 @@ class DetailsRepositoryImpl(
             cacheManager.getStale<List<GithubRelease>>(cacheKey)?.let { return it }
             throw e
         }
+    }
+
+    private fun processForgejoBody(
+        body: String,
+        sourceHost: String,
+        owner: String,
+        repo: String,
+    ): String {
+        // Forgejo emits CRLF line endings. The intellij-markdown GFM
+        // table parser is line-sensitive — `\r` left in the separator
+        // row makes the table degrade to literal pipes. Normalize first,
+        // then run the same image / URL rewriting used on GitHub
+        // release bodies, but pointed at the Forgejo raw-branch URL.
+        val normalized = body.replace("\r\n", "\n")
+        val baseUrl = "https://$sourceHost/$owner/$repo/raw/branch/HEAD/"
+        return preprocessMarkdown(markdown = normalized, baseUrl = baseUrl)
     }
 
     @OptIn(ExperimentalEncodingApi::class)

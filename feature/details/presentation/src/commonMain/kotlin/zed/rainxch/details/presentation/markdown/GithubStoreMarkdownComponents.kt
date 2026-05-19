@@ -2,6 +2,7 @@ package zed.rainxch.details.presentation.markdown
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalUriHandler
 import com.mikepenz.markdown.compose.components.MarkdownComponents
@@ -71,12 +72,21 @@ private fun LinkAwareMarkdownImage(
     val outerHref = findEnclosingLinkDestination(node, content)
     val imageData = imageTransformer.transform(imageSrc) ?: return
 
+    // Block-level images: GitHub-style sizing. Cap width to the
+    // content column, let height flow naturally from the intrinsic
+    // aspect ratio. No height cap — a tall screenshot renders at its
+    // full proportional height and the user scrolls past it, matching
+    // what github.com / `.markdown-body img { max-width: 100% }` does.
+    // Inline rendering still uses the lib's `Placeholder` slot via
+    // `MarkdownImageTransformer`.
+    val blockModifier = androidx.compose.ui.Modifier.fillMaxWidth()
+
     if (outerHref != null) {
         val uriHandler = LocalUriHandler.current
         Image(
             painter = imageData.painter,
             contentDescription = imageData.contentDescription,
-            modifier = imageData.modifier.clickable {
+            modifier = blockModifier.clickable {
                 runCatching { uriHandler.openUri(outerHref) }
             },
             alignment = imageData.alignment,
@@ -88,7 +98,7 @@ private fun LinkAwareMarkdownImage(
         Image(
             painter = imageData.painter,
             contentDescription = imageData.contentDescription,
-            modifier = imageData.modifier,
+            modifier = blockModifier,
             alignment = imageData.alignment,
             contentScale = imageData.contentScale,
             alpha = imageData.alpha,

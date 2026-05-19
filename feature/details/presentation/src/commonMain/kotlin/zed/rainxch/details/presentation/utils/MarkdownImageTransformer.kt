@@ -2,6 +2,7 @@ package zed.rainxch.details.presentation.utils
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -115,16 +117,140 @@ class MarkdownImageTransformer(
 
         val painter = rememberAsyncImagePainter(model = request)
 
+        val isBadgeLike = looksLikeBadge(normalizedLink)
+        val inlineModifier = if (isBadgeLike) {
+            // SVG / shields.io / GitHub Actions badge / Codecov tile —
+            // narrow vector content. Cap tight so several badges tile
+            // on one line without overlap.
+            Modifier
+                .heightIn(max = BADGE_MAX_HEIGHT_DP.dp)
+                .widthIn(max = BADGE_MAX_WIDTH_DP.dp)
+        } else {
+            // Raster image (PNG / JPG / WEBP / GIF) — typically a
+            // banner, hero, or screenshot. Give it room while still
+            // bounded so a stray oversized PNG can't take over the
+            // page. Block-level rendering of these goes through
+            // `LinkAwareMarkdownImage` and ignores this modifier.
+            Modifier
+                .heightIn(max = RASTER_MAX_HEIGHT_DP.dp)
+                .widthIn(max = RASTER_MAX_WIDTH_DP.dp)
+        }
+
         return ImageData(
             painter = painter,
-            modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp),
+            modifier = inlineModifier,
             contentDescription = "Image",
             contentScale = ContentScale.Fit,
         )
     }
 
+    private fun looksLikeBadge(url: String): Boolean {
+        val lower = url.lowercase()
+        // 1. Explicit `.svg` (with or without query string). Covers most
+        //    repos' own action badges + custom shields.
+        val pathOnly = lower.substringBefore('?').substringBefore('#')
+        if (pathOnly.endsWith(".svg")) return true
+        // 2. Known badge providers — many serve SVG without an
+        //    extension in the URL (`https://img.shields.io/badge/...`).
+        val host = lower
+            .removePrefix("https://")
+            .removePrefix("http://")
+            .substringBefore('/')
+        return host in BADGE_HOSTS ||
+            // 3. Path-based hints — GitHub Actions workflow badges
+            //    (`/actions/workflows/.../badge.svg`), Open Source
+            //    Insights, Bestpractices.dev tiles.
+            "/badge" in pathOnly ||
+            "/badges/" in pathOnly ||
+            "/workflows/" in pathOnly && pathOnly.endsWith("/badge") ||
+            "/bestpractices/" in pathOnly
+    }
+
     @Composable
     override fun intrinsicSize(painter: Painter): Size = painter.intrinsicSize
+
+    /**
+     * Override the lib's per-paragraph placeholder size so badge rows
+     * (the typical `[![…](svg)](url) [![…](svg)](url)` stack in a
+     * README header) don't all inherit the FIRST image's placeholder
+     * dimensions — which is what produces the observed overlap when the
+     * first image is an SVG with no intrinsic size (`Size(0, 180)`
+     * defaults from the lib) and every following badge takes a 180sp
+     * tall slot in the same line.
+     *
+     * Strategy: when the painter has not yet reported an intrinsic
+     * size, allocate a badge-sized slot (32sp tall, 120sp wide) instead
+     * of the lib's 180×180 default. That tiles cleanly horizontally on
+     * a single line. Once Coil decodes and the painter reports a real
+     * `intrinsicImageSize`, we scale into the container width with the
+     * height capped at [RASTER_MAX_HEIGHT_DP] (the larger of the two
+     * per-kind ceilings, so a single shared placeholder per paragraph
+     * still fits a raster image without vertical overflow); when that
+     * cap trims height we scale width proportionally so aspect ratio
+     * and placeholder slot stay consistent. Badge images remain bounded
+     * at 40 dp by their own modifier inside this slot. Container width of `0f` (first
+     * composition before the layout pass) is treated the same as
+     * unspecified — otherwise the placeholder collapses to zero size,
+     * the image is invisible on first frame, and a second
+     * recomposition is forced once layout reports a real width.
+     */
+    override fun placeholderConfig(
+        density: androidx.compose.ui.unit.Density,
+        containerSize: Size,
+        intrinsicImageSize: Size,
+    ): com.mikepenz.markdown.model.PlaceholderConfig {
+        val (widthSp, heightSp) = when {
+            intrinsicImageSize.isUnspecified ||
+                intrinsicImageSize.width <= 0f ||
+                intrinsicImageSize.height <= 0f ->
+                BADGE_DEFAULT_WIDTH_SP to BADGE_DEFAULT_HEIGHT_SP
+            else -> with(density) {
+                // Treat a zero container width the same as unspecified.
+                // Compose can hand us `containerSize.width == 0f` on the
+                // first composition before the surrounding paragraph
+                // has been measured; without this fallback the
+                // placeholder collapses to zero size and the image
+                // disappears for one frame.
+                val containerWidthPx = when {
+                    containerSize.isUnspecified -> intrinsicImageSize.width
+                    containerSize.width <= 0f -> intrinsicImageSize.width
+                    else -> containerSize.width
+                }
+                val initialWidth = minOf(intrinsicImageSize.width, containerWidthPx)
+                val ratio = intrinsicImageSize.height /
+                    intrinsicImageSize.width.coerceAtLeast(1f)
+                val rawHeight = initialWidth * ratio
+                // Cap at the LARGER of the two per-kind modifier
+                // ceilings (raster). The mikepenz lib uses a single
+                // shared `Placeholder` per paragraph, so if a paragraph
+                // contains a genuinely inline raster image (e.g.
+                // `Some text ![screenshot](img.png) more text`) and we
+                // capped here at `BADGE_MAX_HEIGHT_DP` (40 dp), the
+                // placeholder slot would be 40 dp while the raster's
+                // own modifier still allows 320 dp — the image would
+                // overflow the text flow vertically. Using the raster
+                // cap reserves enough slot for either kind; badge
+                // images are still independently bounded at 40 dp by
+                // their own modifier inside this slot.
+                val maxHeightPx = RASTER_MAX_HEIGHT_DP.dp.toPx()
+                val targetHeight = rawHeight.coerceAtMost(maxHeightPx)
+                // Preserve aspect ratio: when height was clamped, scale
+                // the width down by the same factor so the placeholder
+                // box matches the actual rendered image shape — avoids
+                // excess horizontal whitespace and badge re-wrapping.
+                val targetWidth = if (rawHeight > maxHeightPx && ratio > 0f) {
+                    targetHeight / ratio
+                } else {
+                    initialWidth
+                }
+                targetWidth.toSp().value to targetHeight.toSp().value
+            }
+        }
+        return com.mikepenz.markdown.model.PlaceholderConfig(
+            size = Size(widthSp, heightSp),
+            verticalAlign = androidx.compose.ui.text.PlaceholderVerticalAlign.Center,
+        )
+    }
 
     private suspend fun probeOnce(url: String): ProbeResult {
         probeMutex.withLock {
@@ -168,6 +294,35 @@ class MarkdownImageTransformer(
         // an uncompressed source export that would be unreadable inline
         // anyway.
         const val MAX_IMAGE_BYTES = 5L * 1024 * 1024
+
+        // Default inline slot for badges (most common SVG inline case).
+        // 32sp tall fits a Shields.io / GitHub Actions badge with room
+        // to breathe; 120sp wide is the typical "Get it on …" width.
+        private const val BADGE_DEFAULT_WIDTH_SP = 120f
+        private const val BADGE_DEFAULT_HEIGHT_SP = 32f
+
+        // SVG / vector badge bounds — designed for narrow vector
+        // content. Single source of truth: placeholder cap and
+        // ImageData.modifier height cap derive from the same dp
+        // constant so the placeholder slot and the rendered Image
+        // remain in lock-step at every density.
+        private const val BADGE_MAX_HEIGHT_DP = 40
+        private const val BADGE_MAX_WIDTH_DP = 220
+
+        // Raster image bounds — banners, screenshots, hero shots. Looser
+        // height + width so they're actually legible inline (when they
+        // appear inline at all — most are top-level via LinkAwareMarkdownImage).
+        private const val RASTER_MAX_HEIGHT_DP = 320
+        private const val RASTER_MAX_WIDTH_DP = 480
+
+        // Hosts that overwhelmingly serve SVG badges, often without a
+        // `.svg` URL suffix. Matched case-insensitively.
+        private val BADGE_HOSTS = setOf(
+            "img.shields.io",
+            "shields.io",
+            "badgen.net",
+            "badge.fury.io",
+        )
 
         private val networkHeaders =
             NetworkHeaders.Builder()

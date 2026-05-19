@@ -124,6 +124,8 @@ class ExternalImportViewModel(
 
             ExternalImportAction.OnSkipRemaining -> skipRemaining()
 
+            ExternalImportAction.OnSkipLongScan -> skipLongScan()
+
             is ExternalImportAction.OnPickSuggestion ->
                 pickSuggestion(action.packageName, action.suggestion)
 
@@ -197,12 +199,29 @@ class ExternalImportViewModel(
         }
     }
 
+    private var skipRevealJob: Job? = null
+
     private fun startScanIfIdle(force: Boolean = false) {
         if (!force && _state.value.phase != ImportPhase.Idle) return
         if (scanJob?.isActive == true) return
+        // Skip affordance: stays hidden while the scan is fast, fades in
+        // after SKIP_REVEAL_DELAY_MS so the user can bail out of a slow
+        // resolveMatches without backgrounding the app.
+        skipRevealJob?.cancel()
+        skipRevealJob = viewModelScope.launch {
+            kotlinx.coroutines.delay(SKIP_REVEAL_DELAY_MS)
+            _state.update { it.copy(isSkipAvailable = true) }
+        }
         scanJob = viewModelScope.launch {
             try {
-                _state.update { it.copy(phase = ImportPhase.Scanning, errorMessage = null) }
+                _state.update {
+                    it.copy(
+                        phase = ImportPhase.Scanning,
+                        errorMessage = null,
+                        scanStartedAtMs = System.currentTimeMillis(),
+                        isSkipAvailable = false,
+                    )
+                }
 
                 externalImportRepository.runFullScan(includeUnverified = true)
 
@@ -233,6 +252,12 @@ class ExternalImportViewModel(
                             buildCard(candidate, match)
                         }.toImmutableList()
 
+                // Cancel the skip-reveal timer — we've exited the
+                // long-running phase, so the Skip button shouldn't
+                // ambiently appear over the next screen.
+                skipRevealJob?.cancel()
+                skipRevealJob = null
+
                 if (autoLinked.isNotEmpty()) {
                     // Stop on the summary screen so the user sees what auto-linked
                     // and can undo before we cascade into the review wizard.
@@ -246,6 +271,8 @@ class ExternalImportViewModel(
                             autoImported = autoLinked.size,
                             autoLinkedPackages = autoLinked.toPersistentList(),
                             autoLinkedLabels = autoLinkedLabels.toPersistentList(),
+                            scanStartedAtMs = null,
+                            isSkipAvailable = false,
                         )
                     }
                 } else if (cards.isEmpty()) {
@@ -255,6 +282,8 @@ class ExternalImportViewModel(
                             cards = persistentListOf(),
                             autoImported = 0,
                             showCompletionToast = true,
+                            scanStartedAtMs = null,
+                            isSkipAvailable = false,
                         )
                     }
                     _events.send(ExternalImportEvent.PlayConfetti)
@@ -264,6 +293,8 @@ class ExternalImportViewModel(
                             phase = ImportPhase.AwaitingReview,
                             cards = cards,
                             autoImported = 0,
+                            scanStartedAtMs = null,
+                            isSkipAvailable = false,
                         )
                     }
                 }
@@ -275,12 +306,54 @@ class ExternalImportViewModel(
                     it.copy(
                         phase = ImportPhase.Idle,
                         errorMessage = e.message,
+                        scanStartedAtMs = null,
+                        isSkipAvailable = false,
                     )
                 }
                 _events.send(
                     ExternalImportEvent.ShowError(
                         e.message ?: getString(Res.string.external_import_error_scan_failed_default),
                     ),
+                )
+            } finally {
+                skipRevealJob?.cancel()
+                skipRevealJob = null
+            }
+        }
+    }
+
+    /**
+     * Bail out of an in-flight scan / auto-import. Surfaces whatever
+     * candidates the resolver got far enough to expose, so the user can
+     * still review them manually instead of being trapped on a spinner.
+     * If nothing has been resolved yet, drops to an empty Done state —
+     * effectively "no candidates this scan, move on".
+     */
+    private fun skipLongScan() {
+        val active = scanJob ?: return
+        if (!active.isActive) return
+        scanJob = null
+        skipRevealJob?.cancel()
+        skipRevealJob = null
+        active.cancel()
+
+        val partialCandidates = candidatesByPackage.values.toList()
+        val partialMatchesByPkg = lastResolvedMatches.associateBy { it.packageName }
+        viewModelScope.launch {
+            val cards = partialCandidates
+                .mapNotNull { candidate ->
+                    buildCard(candidate, partialMatchesByPkg[candidate.packageName])
+                }
+                .toImmutableList()
+            _state.update {
+                it.copy(
+                    phase = if (cards.isEmpty()) ImportPhase.Done else ImportPhase.AwaitingReview,
+                    cards = cards,
+                    autoImported = 0,
+                    showCompletionToast = cards.isEmpty(),
+                    scanStartedAtMs = null,
+                    isSkipAvailable = false,
+                    errorMessage = null,
                 )
             }
         }
@@ -1008,6 +1081,12 @@ class ExternalImportViewModel(
         private const val AUTO_LINK_THRESHOLD = 0.85
         private const val PRESELECT_MIN = 0.5
         private const val PRESELECT_MAX = 0.85
+
+        // Skip affordance reveal delay. Below this, scans complete
+        // quickly enough that an escape hatch would just be visual
+        // noise. Past it, the user assumes something is stuck and
+        // wants a way out.
+        private const val SKIP_REVEAL_DELAY_MS = 5_000L
     }
 }
 

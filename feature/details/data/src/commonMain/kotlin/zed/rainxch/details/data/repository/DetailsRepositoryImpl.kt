@@ -504,8 +504,9 @@ class DetailsRepositoryImpl(
         // variant tolerates all whitespace transparently so we don't have
         // to pre-strip. Narrow catch: only IAE is decode-related, other
         // throwables (OOM, etc.) propagate.
+        val rawContent = dto.content ?: return null
         val decoded = try {
-            Base64.Mime.decode(dto.content).decodeToString()
+            Base64.Mime.decode(rawContent).decodeToString()
         } catch (e: IllegalArgumentException) {
             logger.warn("Failed to base64-decode backend readme for $owner/$repo: ${e.message}")
             return null
@@ -748,28 +749,47 @@ class DetailsRepositoryImpl(
         defaultBranch: String,
         sourceHost: String,
     ): Triple<String, String?, String>? {
-        val cacheKey = "details:readme:forgejo:v1:$sourceHost:$owner/$repo"
+        // v2 — moved off the non-existent `/readme` endpoint (404s on every
+        // Forgejo / Gitea instance) onto `/contents/README.md`.
+        val cacheKey = "details:readme:forgejo:v2:$sourceHost:$owner/$repo"
         cacheManager.get<CachedReadme>(cacheKey)?.let {
             return Triple(it.content, it.languageCode, it.path)
         }
         val client = forgejoClientRegistry.clientFor(sourceHost)
-        val dto = client.getReadme(owner, repo).getOrNull() ?: run {
-            cacheManager.getStale<CachedReadme>(cacheKey)?.let {
-                return Triple(it.content, it.languageCode, it.path)
+
+        // Forgejo / Gitea does NOT implement GitHub's `/repos/{o}/{r}/readme`
+        // convenience endpoint — verified live against codeberg.org. We hit
+        // the contents endpoint directly. Try `README.md` first (covers the
+        // overwhelming majority including Gadgetbridge), and on 404 fall
+        // back to listing the repo root and scanning for any
+        // `^README(\..+)?$` file.
+        val dto = client.getContentsFile(owner, repo, "README.md", defaultBranch).getOrNull()
+            ?: client.listContentsRoot(owner, repo, defaultBranch).getOrNull()
+                ?.firstOrNull { entry ->
+                    entry.type == "file" && entry.name?.let { READMEFileNameRegex.matches(it) } == true
+                }
+                ?.let { entry ->
+                    client.getContentsFile(owner, repo, entry.path ?: entry.name!!, defaultBranch).getOrNull()
+                }
+            ?: run {
+                cacheManager.getStale<CachedReadme>(cacheKey)?.let {
+                    return Triple(it.content, it.languageCode, it.path)
+                }
+                return null
             }
-            return null
-        }
-        // Forgejo's response shape matches GitHub's contents API — content
-        // is base64 (Mime variant tolerates embedded newlines transparently).
+
+        // Forgejo's contents response is base64 (single continuous line,
+        // no MIME wrapping — Mime variant tolerates both forms transparently).
+        val rawContent = dto.content ?: return null
         val decoded = try {
-            Base64.Mime.decode(dto.content).decodeToString()
+            Base64.Mime.decode(rawContent).decodeToString()
         } catch (e: IllegalArgumentException) {
             logger.warn("Failed to decode Forgejo readme for $sourceHost/$owner/$repo: ${e.message}")
             return null
         }
         val path = dto.path?.takeIf { it.isNotBlank() } ?: "README.md"
         // Relative image refs in a Forgejo README need the per-host raw URL
-        // base, not raw.githubusercontent.com.
+        // base. Forgejo's raw path shape is `/{o}/{r}/raw/branch/{ref}/`.
         val baseUrl = "https://$sourceHost/$owner/$repo/raw/branch/$defaultBranch/"
         val processed = preprocessMarkdown(markdown = decoded, baseUrl = baseUrl)
         val detected = readmeHelper.detectReadmeLanguage(processed)
@@ -779,6 +799,11 @@ class DetailsRepositoryImpl(
             README,
         )
         return Triple(processed, detected, path)
+    }
+
+    private companion object {
+        // README, README.md, README.rst, README.adoc, Readme.txt, etc.
+        private val READMEFileNameRegex = Regex("""^README(\..+)?$""", RegexOption.IGNORE_CASE)
     }
 
     private suspend fun getForgejoRepoStats(

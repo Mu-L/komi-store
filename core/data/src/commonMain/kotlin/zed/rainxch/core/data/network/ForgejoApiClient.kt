@@ -93,16 +93,40 @@ class ForgejoApiClient(
         }
 
     /**
-     * Forgejo `/repos/{o}/{r}/readme` mirrors GitHub's shape — returns the
-     * default README as a base64-encoded content blob, so the DetailsRepo
-     * decode pipeline (`Base64.Mime.decode(...)`) works without branching.
+     * Forgejo does **not** expose GitHub's `/readme` convenience
+     * endpoint (verified live against codeberg.org — 404 across every
+     * repo). Use the `/contents/{filepath}` route, which returns the
+     * exact same `{name, path, content, encoding}` shape that the
+     * GitHub readme decoder already handles. The README filename has
+     * to be supplied explicitly; callers typically try `README.md`
+     * first and fall back to listing `/contents/` for `^README(\..+)?$`
+     * matches when that 404s.
+     *
+     * `ref` defaults to the repo's default branch when omitted, but we
+     * pass it explicitly so newly-created repos with a non-`main` HEAD
+     * resolve correctly.
      */
-    suspend fun getReadme(
+    suspend fun getContentsFile(
         owner: String,
         repo: String,
+        filepath: String,
+        ref: String,
     ): Result<GithubReadmeResponseDto> =
         client.executeRequest {
-            get("$baseUrl/repos/$owner/$repo/readme")
+            get("$baseUrl/repos/$owner/$repo/contents/$filepath") {
+                parameter("ref", ref)
+            }
+        }
+
+    suspend fun listContentsRoot(
+        owner: String,
+        repo: String,
+        ref: String,
+    ): Result<List<GithubReadmeResponseDto>> =
+        client.executeRequest {
+            get("$baseUrl/repos/$owner/$repo/contents") {
+                parameter("ref", ref)
+            }
         }
 
     /**

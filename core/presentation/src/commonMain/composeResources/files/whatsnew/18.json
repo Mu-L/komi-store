@@ -39,7 +39,8 @@
         "Markdown polish — HTML blockquotes and <pre><code> fences now render correctly. Sub/superscript convert to unicode (H₂O, x²). Named HTML entities (©, ™, —, “curly quotes”, etc.) decoded.",
         "Collapsible <details>/<summary> sections render as tap-to-expand cards. Adjacent badge / button images (Play Store, GitHub Releases, etc.) flow in a single row instead of stacking.",
         "Manual app matching no longer re-downloads to verify — your selected version is trusted as-is. Details banner notes when an app was manually linked.",
-        "Section-aware sort across the library — Installed (updates, recency, name), Starred (recency, name, stars), Favourites (recency, name); each section remembers its own choice."
+        "Section-aware sort across the library — Installed (updates, recency, name), Starred (recency, name, stars), Favourites (recency, name); each section remembers its own choice.",
+        "Codeberg + Forgejo support — paste a Codeberg.org or any Forgejo/Gitea URL in the manual-link sheet; GHS picks an asset, downloads, installs and polls for updates just like GitHub repos. Source chip on the row tells you where the app came from. Self-hosted? Tweaks → Network → Custom forges lets you add any hostname. Search now has a GitHub / Codeberg source toggle plus a chip per custom forge you've added. Details screen also fully wired — opening a Codeberg / Forgejo repo loads the readme, releases, and stats from that host instead of falling back to GitHub."
       ]
     }
   ]

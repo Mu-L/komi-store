@@ -40,6 +40,7 @@ import zed.rainxch.githubstore.core.presentation.res.external_import_error_link_
 import zed.rainxch.githubstore.core.presentation.res.external_import_error_link_network
 import zed.rainxch.githubstore.core.presentation.res.external_import_error_scan_failed_default
 import zed.rainxch.githubstore.core.presentation.res.external_import_installer_browser
+import zed.rainxch.githubstore.core.presentation.res.external_import_url_not_found
 import zed.rainxch.githubstore.core.presentation.res.external_import_installer_fdroid
 import zed.rainxch.githubstore.core.presentation.res.external_import_installer_obtainium
 import zed.rainxch.githubstore.core.presentation.res.external_import_installer_self
@@ -418,23 +419,39 @@ class ExternalImportViewModel(
                     zed.rainxch.core.domain.model.RepositorySource.GitHub -> null
                     is zed.rainxch.core.domain.model.RepositorySource.Forgejo -> src.host
                 }
+                val repoInfo = try {
+                    appsRepository.fetchRepoInfo(parsed.owner, parsed.repo, sourceHost)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    logger.warn("URL paste verify failed for ${parsed.owner}/${parsed.repo}: ${e.message}")
+                    null
+                }
                 _state.update {
                     if (it.activeSearchPackage != packageName) it
-                    else it.copy(
-                        isSearching = false,
-                        searchError = null,
-                        searchResults = persistentListOf(
-                            RepoSuggestionUi(
-                                owner = parsed.owner,
-                                repo = parsed.repo,
-                                confidence = 1.0,
-                                source = SuggestionSource.MANUAL,
-                                stars = null,
-                                description = null,
-                                sourceHost = sourceHost,
+                    else if (repoInfo == null) {
+                        it.copy(
+                            isSearching = false,
+                            searchError = getString(Res.string.external_import_url_not_found),
+                            searchResults = persistentListOf(),
+                        )
+                    } else {
+                        it.copy(
+                            isSearching = false,
+                            searchError = null,
+                            searchResults = persistentListOf(
+                                RepoSuggestionUi(
+                                    owner = parsed.owner,
+                                    repo = parsed.repo,
+                                    confidence = 0.95,
+                                    source = SuggestionSource.MANUAL,
+                                    stars = null,
+                                    description = repoInfo.description,
+                                    sourceHost = sourceHost,
+                                ),
                             ),
-                        ),
-                    )
+                        )
+                    }
                 }
                 runCatching { telemetry.importSearchOverrideUsed() }
                 return@launch

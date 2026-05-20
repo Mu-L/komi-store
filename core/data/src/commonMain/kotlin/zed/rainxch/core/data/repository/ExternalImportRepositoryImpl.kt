@@ -216,11 +216,16 @@ class ExternalImportRepositoryImpl(
         }
 
         val backendResults = mutableMapOf<String, MutableList<RepoMatchSuggestion>>()
+        val backendSources = buildList {
+            add("github")
+            forgejoSearchHosts().forEach { host -> add(host) }
+        }
         for (batch in candidates.chunked(MATCH_BATCH_SIZE)) {
             val request =
                 ExternalMatchRequest(
                     platform = "android",
                     candidates = batch.map { it.toRequestItem() },
+                    sources = backendSources,
                 )
             externalMatchApi
                 .match(request)

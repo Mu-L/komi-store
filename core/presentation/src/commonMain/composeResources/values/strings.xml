@@ -914,6 +914,7 @@
     <string name="external_import_progress_auto_importing">Importing matches…</string>
     <string name="external_import_progress_working">Working…</string>
     <string name="external_import_progress_skip">Skip and review later</string>
+    <string name="external_import_url_not_found">Repository not found at that URL. Check the host, owner, and repo name.</string>
     <plurals name="external_import_progress_subtitle_count">
         <item quantity="one">Looked at %1$d app</item>
         <item quantity="other">Looked at %1$d apps</item>

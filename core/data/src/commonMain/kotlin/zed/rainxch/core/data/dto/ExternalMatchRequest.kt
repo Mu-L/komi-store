@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class ExternalMatchRequest(
     val platform: String,
     val candidates: List<RequestItem>,
+    val sources: List<String>? = null,
 ) {
     @Serializable
     data class RequestItem(

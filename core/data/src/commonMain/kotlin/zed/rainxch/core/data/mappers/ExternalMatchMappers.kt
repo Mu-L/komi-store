@@ -31,6 +31,7 @@ fun ExternalMatchResponse.toRepoMatchResults(): List<RepoMatchResult> =
                     source = c.source.toRepoMatchSource(),
                     stars = c.stars,
                     description = c.description,
+                    sourceHost = c.source_host,
                 )
             },
         )
@@ -56,5 +57,6 @@ private fun String.toRepoMatchSource(): RepoMatchSource =
         "manifest" -> RepoMatchSource.MANIFEST
         "search" -> RepoMatchSource.SEARCH
         "fingerprint" -> RepoMatchSource.FINGERPRINT
+        "forgejo_search" -> RepoMatchSource.FORGEJO_SEARCH
         else -> RepoMatchSource.SEARCH
     }

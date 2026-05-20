@@ -20,5 +20,6 @@ data class ExternalMatchResponse(
         val source: String,
         val stars: Int? = null,
         val description: String? = null,
+        val source_host: String? = null,
     )
 }

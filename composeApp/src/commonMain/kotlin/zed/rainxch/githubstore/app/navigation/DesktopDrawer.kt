@@ -76,7 +76,6 @@ fun DesktopDrawer(
                 style =
                     MaterialTheme.typography.titleMedium.copy(
                         fontFamily = geist,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                         fontWeight = FontWeight.SemiBold,
                     ),
             )

@@ -1298,4 +1298,66 @@
     <string name="tweaks_custom_forge_invalid_hostname">Saisissez un nom d'hôte valide (ex. forgejo.example.com).</string>
     <string name="tweaks_custom_forge_save_failed">Impossible d'enregistrer l'hôte. Réessayez.</string>
     <string name="tweaks_custom_forge_remove_failed">Impossible de supprimer l'hôte. Réessayez.</string>
+
+    <!-- Repo pages: issues -->
+    <string name="repo_pages_issues_title">Issues</string>
+    <string name="repo_pages_issues_filter_open">Ouvertes</string>
+    <string name="repo_pages_issues_filter_closed">Fermées</string>
+    <string name="repo_pages_issues_empty_open">Aucune issue ouverte.</string>
+    <string name="repo_pages_issues_empty_closed">Aucune issue fermée.</string>
+    <string name="repo_pages_issue_comments_section">Commentaires</string>
+    <string name="repo_pages_issue_no_body">Aucune description fournie.</string>
+    <string name="repo_pages_issue_opened_by">ouverte par %1$s</string>
+
+    <!-- Repo pages: security -->
+    <string name="repo_pages_security_title">Sécurité</string>
+    <string name="repo_pages_security_advisories_header">Avis de sécurité</string>
+    <string name="repo_pages_security_no_advisories">Aucun avis publié.</string>
+    <string name="repo_pages_security_policy_header">Politique de sécurité</string>
+    <string name="repo_pages_security_no_policy">Aucune politique de sécurité publiée.</string>
+    <string name="repo_pages_severity_critical">Critique</string>
+    <string name="repo_pages_severity_high">Élevée</string>
+    <string name="repo_pages_severity_medium">Moyenne</string>
+    <string name="repo_pages_severity_low">Faible</string>
+    <string name="repo_pages_severity_unknown">Inconnue</string>
+
+    <!-- Repo pages: details entry -->
+    <string name="repo_pages_details_issues_button">Issues</string>
+    <string name="repo_pages_details_security_button">Sécurité</string>
+
+    <!-- Repo pages: details entry -->
+    <string name="repo_pages_details_pulls_button">Pull requests</string>
+
+    <!-- Repo interactions: star -->
+    <string name="star_added">Étoilé</string>
+    <string name="star_removed">Étoile retirée</string>
+    <string name="star_sign_in_required">Connectez-vous pour étoiler des dépôts.</string>
+
+    <!-- Repo interactions: comments -->
+    <string name="repo_pages_comment_hint">Ajouter un commentaire…</string>
+    <string name="repo_pages_comment_send">Envoyer</string>
+    <string name="repo_pages_comment_sign_in">Connectez-vous pour commenter.</string>
+    <string name="repo_pages_comment_failed">Impossible de publier le commentaire.</string>
+    <string name="repo_pages_comment_posted">Commentaire publié</string>
+
+    <!-- Repo interactions: new issue -->
+    <string name="repo_pages_new_issue">Nouvelle issue</string>
+    <string name="repo_pages_new_issue_title_hint">Titre</string>
+    <string name="repo_pages_new_issue_body_hint">Décrivez le problème…</string>
+    <string name="repo_pages_new_issue_submit">Créer</string>
+    <string name="repo_pages_new_issue_sign_in">Connectez-vous pour ouvrir des issues.</string>
+    <string name="repo_pages_new_issue_failed">Impossible de créer l'issue.</string>
+    <string name="repo_pages_new_issue_created">Issue créée</string>
+
+    <!-- Repo interactions: reactions -->
+    <string name="repo_pages_react_sign_in">Connectez-vous pour réagir.</string>
+    <string name="repo_pages_react_failed">Impossible d'ajouter la réaction.</string>
+    <string name="cd_thumbs_up">Pouce levé</string>
+
+    <!-- Repo pages: pull requests -->
+    <string name="repo_pages_pulls_title">Pull requests</string>
+    <string name="repo_pages_pulls_empty_open">Aucune pull request ouverte.</string>
+    <string name="repo_pages_pulls_empty_closed">Aucune pull request fermée.</string>
+    <string name="repo_pages_pr_state_merged">Fusionnée</string>
+    <string name="repo_pages_pr_draft">Brouillon</string>
 </resources>

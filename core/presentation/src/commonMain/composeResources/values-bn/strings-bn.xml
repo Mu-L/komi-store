@@ -1317,4 +1317,66 @@
     <string name="tweaks_custom_forge_invalid_hostname">একটি বৈধ হোস্টনেম দিন (যেমন forgejo.example.com)।</string>
     <string name="tweaks_custom_forge_save_failed">হোস্ট সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="tweaks_custom_forge_remove_failed">হোস্ট সরানো যায়নি। আবার চেষ্টা করুন।</string>
+
+    <!-- Repo pages: issues -->
+    <string name="repo_pages_issues_title">ইস্যু</string>
+    <string name="repo_pages_issues_filter_open">খোলা</string>
+    <string name="repo_pages_issues_filter_closed">বন্ধ</string>
+    <string name="repo_pages_issues_empty_open">কোনো খোলা ইস্যু নেই।</string>
+    <string name="repo_pages_issues_empty_closed">কোনো বন্ধ ইস্যু নেই।</string>
+    <string name="repo_pages_issue_comments_section">মন্তব্য</string>
+    <string name="repo_pages_issue_no_body">কোনো বিবরণ দেওয়া হয়নি।</string>
+    <string name="repo_pages_issue_opened_by">%1$s খুলেছেন</string>
+
+    <!-- Repo pages: security -->
+    <string name="repo_pages_security_title">সুরক্ষা</string>
+    <string name="repo_pages_security_advisories_header">সুরক্ষা পরামর্শ</string>
+    <string name="repo_pages_security_no_advisories">কোনো প্রকাশিত পরামর্শ নেই।</string>
+    <string name="repo_pages_security_policy_header">সুরক্ষা নীতি</string>
+    <string name="repo_pages_security_no_policy">কোনো সুরক্ষা নীতি প্রকাশিত হয়নি।</string>
+    <string name="repo_pages_severity_critical">গুরুতর</string>
+    <string name="repo_pages_severity_high">উচ্চ</string>
+    <string name="repo_pages_severity_medium">মাঝারি</string>
+    <string name="repo_pages_severity_low">নিম্ন</string>
+    <string name="repo_pages_severity_unknown">অজানা</string>
+
+    <!-- Repo pages: details entry -->
+    <string name="repo_pages_details_issues_button">ইস্যু</string>
+    <string name="repo_pages_details_security_button">সুরক্ষা</string>
+
+    <!-- Repo pages: details entry -->
+    <string name="repo_pages_details_pulls_button">পুল রিকোয়েস্ট</string>
+
+    <!-- Repo interactions: star -->
+    <string name="star_added">স্টার করা হয়েছে</string>
+    <string name="star_removed">স্টার সরানো হয়েছে</string>
+    <string name="star_sign_in_required">রিপোজিটরি স্টার করতে সাইন ইন করুন।</string>
+
+    <!-- Repo interactions: comments -->
+    <string name="repo_pages_comment_hint">একটি মন্তব্য যোগ করুন…</string>
+    <string name="repo_pages_comment_send">পাঠান</string>
+    <string name="repo_pages_comment_sign_in">মন্তব্য করতে সাইন ইন করুন।</string>
+    <string name="repo_pages_comment_failed">মন্তব্য পোস্ট করা যায়নি।</string>
+    <string name="repo_pages_comment_posted">মন্তব্য পোস্ট করা হয়েছে</string>
+
+    <!-- Repo interactions: new issue -->
+    <string name="repo_pages_new_issue">নতুন ইস্যু</string>
+    <string name="repo_pages_new_issue_title_hint">শিরোনাম</string>
+    <string name="repo_pages_new_issue_body_hint">ইস্যুটি বর্ণনা করুন…</string>
+    <string name="repo_pages_new_issue_submit">তৈরি করুন</string>
+    <string name="repo_pages_new_issue_sign_in">ইস্যু খুলতে সাইন ইন করুন।</string>
+    <string name="repo_pages_new_issue_failed">ইস্যু তৈরি করা যায়নি।</string>
+    <string name="repo_pages_new_issue_created">ইস্যু তৈরি করা হয়েছে</string>
+
+    <!-- Repo interactions: reactions -->
+    <string name="repo_pages_react_sign_in">প্রতিক্রিয়া জানাতে সাইন ইন করুন।</string>
+    <string name="repo_pages_react_failed">প্রতিক্রিয়া যোগ করা যায়নি।</string>
+    <string name="cd_thumbs_up">থাম্বস আপ</string>
+
+    <!-- Repo pages: pull requests -->
+    <string name="repo_pages_pulls_title">পুল রিকোয়েস্ট</string>
+    <string name="repo_pages_pulls_empty_open">কোনো খোলা পুল রিকোয়েস্ট নেই।</string>
+    <string name="repo_pages_pulls_empty_closed">কোনো বন্ধ পুল রিকোয়েস্ট নেই।</string>
+    <string name="repo_pages_pr_state_merged">মার্জ করা হয়েছে</string>
+    <string name="repo_pages_pr_draft">খসড়া</string>
 </resources>

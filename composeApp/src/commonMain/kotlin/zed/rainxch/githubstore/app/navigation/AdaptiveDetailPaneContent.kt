@@ -185,6 +185,15 @@ private fun MainDetailPane(
         },
         onNavigateToAbout = onOpenAbout,
         onNavigateToWhatsNew = onOpenWhatsNew,
+        onNavigateToIssues = { owner, repo ->
+            navController.navigate(GithubStoreGraph.RepoIssuesScreen(owner = owner, repo = repo))
+        },
+        onNavigateToSecurity = { owner, repo ->
+            navController.navigate(GithubStoreGraph.RepoSecurityScreen(owner = owner, repo = repo))
+        },
+        onNavigateToPulls = { owner, repo ->
+            navController.navigate(GithubStoreGraph.RepoPullsScreen(owner = owner, repo = repo))
+        },
         viewModel = viewModel,
     )
 }

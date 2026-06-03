@@ -1316,4 +1316,66 @@
     <string name="tweaks_custom_forge_invalid_hostname">유효한 호스트명을 입력하세요 (예: forgejo.example.com).</string>
     <string name="tweaks_custom_forge_save_failed">호스트를 저장할 수 없습니다. 다시 시도하세요.</string>
     <string name="tweaks_custom_forge_remove_failed">호스트를 제거할 수 없습니다. 다시 시도하세요.</string>
+
+    <!-- Repo pages: issues -->
+    <string name="repo_pages_issues_title">이슈</string>
+    <string name="repo_pages_issues_filter_open">열림</string>
+    <string name="repo_pages_issues_filter_closed">닫힘</string>
+    <string name="repo_pages_issues_empty_open">열린 이슈가 없습니다.</string>
+    <string name="repo_pages_issues_empty_closed">닫힌 이슈가 없습니다.</string>
+    <string name="repo_pages_issue_comments_section">댓글</string>
+    <string name="repo_pages_issue_no_body">설명이 없습니다.</string>
+    <string name="repo_pages_issue_opened_by">%1$s님이 작성</string>
+
+    <!-- Repo pages: security -->
+    <string name="repo_pages_security_title">보안</string>
+    <string name="repo_pages_security_advisories_header">보안 권고</string>
+    <string name="repo_pages_security_no_advisories">게시된 권고가 없습니다.</string>
+    <string name="repo_pages_security_policy_header">보안 정책</string>
+    <string name="repo_pages_security_no_policy">게시된 보안 정책이 없습니다.</string>
+    <string name="repo_pages_severity_critical">심각</string>
+    <string name="repo_pages_severity_high">높음</string>
+    <string name="repo_pages_severity_medium">중간</string>
+    <string name="repo_pages_severity_low">낮음</string>
+    <string name="repo_pages_severity_unknown">알 수 없음</string>
+
+    <!-- Repo pages: details entry -->
+    <string name="repo_pages_details_issues_button">이슈</string>
+    <string name="repo_pages_details_security_button">보안</string>
+
+    <!-- Repo pages: details entry -->
+    <string name="repo_pages_details_pulls_button">풀 리퀘스트</string>
+
+    <!-- Repo interactions: star -->
+    <string name="star_added">별표함</string>
+    <string name="star_removed">별표 제거됨</string>
+    <string name="star_sign_in_required">로그인하면 저장소에 별표할 수 있습니다.</string>
+
+    <!-- Repo interactions: comments -->
+    <string name="repo_pages_comment_hint">댓글 추가…</string>
+    <string name="repo_pages_comment_send">보내기</string>
+    <string name="repo_pages_comment_sign_in">로그인하면 댓글을 달 수 있습니다.</string>
+    <string name="repo_pages_comment_failed">댓글을 게시할 수 없습니다.</string>
+    <string name="repo_pages_comment_posted">댓글이 게시되었습니다</string>
+
+    <!-- Repo interactions: new issue -->
+    <string name="repo_pages_new_issue">새 이슈</string>
+    <string name="repo_pages_new_issue_title_hint">제목</string>
+    <string name="repo_pages_new_issue_body_hint">이슈를 설명하세요…</string>
+    <string name="repo_pages_new_issue_submit">작성</string>
+    <string name="repo_pages_new_issue_sign_in">로그인하면 이슈를 열 수 있습니다.</string>
+    <string name="repo_pages_new_issue_failed">이슈를 작성할 수 없습니다.</string>
+    <string name="repo_pages_new_issue_created">이슈가 작성되었습니다</string>
+
+    <!-- Repo interactions: reactions -->
+    <string name="repo_pages_react_sign_in">로그인하면 반응을 남길 수 있습니다.</string>
+    <string name="repo_pages_react_failed">반응을 추가할 수 없습니다.</string>
+    <string name="cd_thumbs_up">좋아요</string>
+
+    <!-- Repo pages: pull requests -->
+    <string name="repo_pages_pulls_title">풀 리퀘스트</string>
+    <string name="repo_pages_pulls_empty_open">열린 풀 리퀘스트가 없습니다.</string>
+    <string name="repo_pages_pulls_empty_closed">닫힌 풀 리퀘스트가 없습니다.</string>
+    <string name="repo_pages_pr_state_merged">병합됨</string>
+    <string name="repo_pages_pr_draft">초안</string>
 </resources>

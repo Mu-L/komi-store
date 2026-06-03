@@ -1,5 +1,11 @@
 # Flatpak Packaging for GitHub Store
 
+## Sandbox limitations
+
+The sandbox can't exec or install host binaries, so the Flatpak is browse-and-download only: files land in `~/Downloads` (`--filesystem=xdg-download:rw`); the user installs them manually outside.
+
+Don't add `--filesystem=host` or `--talk-name=org.freedesktop.Flatpak` without a tested host-spawn path — Flathub rejects unjustified host access. For install + auto-update, use the AppImage / deb / rpm / Arch builds.
+
 ## Prerequisites
 
 Install Flatpak and the build tools:

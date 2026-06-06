@@ -9,6 +9,8 @@ data class ImportStarsState(
     val importedUsername: String? = null,
     val isImporting: Boolean = false,
     val candidates: ImmutableList<ImportCandidateUi> = persistentListOf(),
+    val filteredCandidates: ImmutableList<ImportCandidateUi> = persistentListOf(),
+    val pendingCount: Int = 0,
     val searchQuery: String = "",
     val errorMessage: String? = null,
     val isBulkAdding: Boolean = false,

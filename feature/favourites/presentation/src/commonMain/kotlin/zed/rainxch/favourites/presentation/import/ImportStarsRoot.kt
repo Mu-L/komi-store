@@ -2,6 +2,7 @@
 
 package zed.rainxch.favourites.presentation.import
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +18,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,9 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -70,8 +71,9 @@ fun ImportStarsRoot(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             ImportStarsEvent.NavigateBack -> onNavigateBack()
-            is ImportStarsEvent.NavigateToDetails ->
+            is ImportStarsEvent.NavigateToDetails -> {
                 onNavigateToDetails(event.repoId, event.owner, event.repo)
+            }
         }
     }
 
@@ -96,7 +98,11 @@ private fun ImportStarsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { onAction(ImportStarsAction.OnNavigateBack) }) {
+                    IconButton(
+                        onClick = {
+                            onAction(ImportStarsAction.OnNavigateBack)
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(Res.string.navigate_back),
@@ -107,12 +113,17 @@ private fun ImportStarsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             when (state.phase) {
                 ImportStarsState.Phase.UsernameInput -> UsernameInputPanel(
                     state = state,
                     onAction = onAction,
                 )
+
                 ImportStarsState.Phase.Results -> ResultsPanel(
                     state = state,
                     onAction = onAction,
@@ -138,6 +149,7 @@ private fun UsernameInputPanel(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
         GhsTextField(
             value = state.usernameQuery,
             onValueChange = { onAction(ImportStarsAction.OnUsernameQueryChange(it)) },
@@ -145,6 +157,7 @@ private fun UsernameInputPanel(
             placeholder = stringResource(Res.string.import_stars_hint),
             singleLine = true,
         )
+
         if (state.errorMessage != null) {
             Text(
                 text = state.errorMessage,
@@ -152,6 +165,7 @@ private fun UsernameInputPanel(
                 color = MaterialTheme.colorScheme.error,
             )
         }
+
         GhsButton(
             onClick = { onAction(ImportStarsAction.OnImportClick) },
             label = stringResource(Res.string.import_stars_button),
@@ -169,21 +183,11 @@ private fun ResultsPanel(
     state: ImportStarsState,
     onAction: (ImportStarsAction) -> Unit,
 ) {
-    val filtered = remember(state.candidates, state.searchQuery) {
-        val q = state.searchQuery.trim().lowercase()
-        if (q.isBlank()) {
-            state.candidates
-        } else {
-            state.candidates.filter { c ->
-                c.name.lowercase().contains(q) ||
-                    c.owner.lowercase().contains(q) ||
-                    (c.description?.lowercase()?.contains(q) == true)
-            }
-        }
-    }
-    val pendingCount = state.candidates.count { !it.isAlreadyFavourited }
-
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
         Spacer(Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -191,7 +195,7 @@ private fun ResultsPanel(
         ) {
             Text(
                 text = stringResource(
-                    Res.string.import_stars_header_count,
+                    resource = Res.string.import_stars_header_count,
                     state.importedUsername ?: "",
                     state.candidates.size,
                 ),
@@ -216,10 +220,15 @@ private fun ResultsPanel(
             leadingIcon = Icons.Filled.Search,
             trailingIcon = {
                 if (state.searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { onAction(ImportStarsAction.OnSearchChange("")) }) {
+                    IconButton(
+                        onClick = { onAction(ImportStarsAction.OnClearSearch) },
+                        modifier = Modifier.size(20.dp),
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Close,
                             contentDescription = stringResource(Res.string.clear_search),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp),
                         )
                     }
                 }
@@ -227,11 +236,11 @@ private fun ResultsPanel(
             singleLine = true,
         )
 
-        if (pendingCount > 0) {
+        if (state.pendingCount > 0) {
             Spacer(Modifier.height(12.dp))
             GhsButton(
                 onClick = { onAction(ImportStarsAction.OnAddAll) },
-                label = stringResource(Res.string.import_stars_add_all, pendingCount),
+                label = stringResource(Res.string.import_stars_add_all, state.pendingCount),
                 variant = GhsButtonVariant.Tonal,
                 size = GhsButtonSize.Md,
                 modifier = Modifier.fillMaxWidth(),
@@ -241,14 +250,17 @@ private fun ResultsPanel(
         }
 
         Spacer(Modifier.height(8.dp))
-        if (filtered.isEmpty()) {
+        if (state.filteredCandidates.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = if (state.candidates.isEmpty()) {
-                        stringResource(Res.string.import_stars_empty, state.importedUsername ?: "")
+                        stringResource(
+                            resource = Res.string.import_stars_empty,
+                            state.importedUsername ?: ""
+                        )
                     } else {
                         stringResource(Res.string.import_stars_no_match)
                     },
@@ -261,7 +273,7 @@ private fun ResultsPanel(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(items = filtered, key = { it.repoId }) { candidate ->
+                items(items = state.filteredCandidates, key = { it.repoId }) { candidate ->
                     CandidateRow(
                         candidate = candidate,
                         onClick = { onAction(ImportStarsAction.OnCandidateClick(candidate)) },
@@ -282,14 +294,18 @@ private fun CandidateRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         CoilImage(
             imageModel = { candidate.ownerAvatarUrl },
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier
+                .size(40.dp)
+                .clip(MaterialTheme.shapes.small),
         )
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "${candidate.owner}/${candidate.name}",
@@ -298,6 +314,7 @@ private fun CandidateRow(
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
             )
+
             if (!candidate.description.isNullOrBlank()) {
                 Text(
                     text = candidate.description,
@@ -307,12 +324,13 @@ private fun CandidateRow(
                 )
             }
         }
+
         IconButton(onClick = onToggle) {
             Icon(
                 imageVector = if (candidate.isAlreadyFavourited) {
-                    Icons.Filled.Star
+                    Icons.Filled.Favorite
                 } else {
-                    Icons.Outlined.StarBorder
+                    Icons.Outlined.FavoriteBorder
                 },
                 contentDescription = stringResource(
                     if (candidate.isAlreadyFavourited) {

@@ -6,12 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import zed.rainxch.core.domain.model.FavoriteRepo
@@ -26,22 +30,49 @@ class ImportStarsViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ImportStarsState())
-    val state = _state.asStateFlow()
+    val state = _state
+        .map { it.withDerived() }
+        .flowOn(Dispatchers.Default)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000L),
+            initialValue = ImportStarsState(),
+        )
 
     private val _events = Channel<ImportStarsEvent>(capacity = Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
     private var importJob: Job? = null
 
+    private fun ImportStarsState.withDerived(): ImportStarsState {
+        val query = searchQuery.trim().lowercase()
+        val filtered = if (query.isBlank()) {
+            candidates
+        } else {
+            candidates.filter { candidate ->
+                candidate.name.lowercase().contains(query) ||
+                    candidate.owner.lowercase().contains(query) ||
+                    (candidate.description?.lowercase()?.contains(query) == true)
+            }.toImmutableList()
+        }
+        return copy(
+            filteredCandidates = filtered,
+            pendingCount = candidates.count { !it.isAlreadyFavourited },
+        )
+    }
+
     fun onAction(action: ImportStarsAction) {
         when (action) {
             ImportStarsAction.OnNavigateBack -> {
                 viewModelScope.launch { _events.send(ImportStarsEvent.NavigateBack) }
             }
+
             is ImportStarsAction.OnUsernameQueryChange -> {
                 _state.update { it.copy(usernameQuery = action.query, errorMessage = null) }
             }
+
             ImportStarsAction.OnImportClick -> importByUsername()
+
             ImportStarsAction.OnResetImport -> {
                 importJob?.cancel()
                 _state.update {
@@ -56,11 +87,19 @@ class ImportStarsViewModel(
                     )
                 }
             }
+
             is ImportStarsAction.OnSearchChange -> {
                 _state.update { it.copy(searchQuery = action.query) }
             }
+
+            ImportStarsAction.OnClearSearch -> {
+                _state.update { it.copy(searchQuery = "") }
+            }
+
             is ImportStarsAction.OnToggleFavourite -> toggleFavourite(action.candidate)
+
             ImportStarsAction.OnAddAll -> addAll()
+
             is ImportStarsAction.OnCandidateClick -> {
                 viewModelScope.launch {
                     _events.send(
@@ -148,13 +187,15 @@ class ImportStarsViewModel(
                 addedAt = now,
                 lastSyncedAt = now,
             )
+
             favouritesRepository.toggleFavorite(favourite)
+
             _state.update { current ->
-                val updated = current.candidates.map { c ->
-                    if (c.repoId == candidate.repoId) {
-                        c.copy(isAlreadyFavourited = !candidate.isAlreadyFavourited)
+                val updated = current.candidates.map { candidateUi ->
+                    if (candidateUi.repoId == candidate.repoId) {
+                        candidateUi.copy(isAlreadyFavourited = !candidate.isAlreadyFavourited)
                     } else {
-                        c
+                        candidateUi
                     }
                 }
                 current.copy(candidates = updated.toImmutableList())
@@ -165,9 +206,13 @@ class ImportStarsViewModel(
     private fun addAll() {
         viewModelScope.launch {
             val pending = _state.value.candidates.filter { !it.isAlreadyFavourited }
+
             if (pending.isEmpty()) return@launch
+
             _state.update { it.copy(isBulkAdding = true) }
+
             val now = Clock.System.now().toEpochMilliseconds()
+
             for (candidate in pending) {
                 val favourite = FavoriteRepo(
                     repoId = candidate.repoId,
@@ -182,12 +227,16 @@ class ImportStarsViewModel(
                     addedAt = now,
                     lastSyncedAt = now,
                 )
+
                 runCatching { favouritesRepository.toggleFavorite(favourite) }
             }
             _state.update { current ->
-                val updated = current.candidates.map { c ->
-                    if (!c.isAlreadyFavourited) c.copy(isAlreadyFavourited = true) else c
+                val updated = current.candidates.map { candidateUi ->
+                    if (!candidateUi.isAlreadyFavourited) {
+                        candidateUi.copy(isAlreadyFavourited = true)
+                    } else candidateUi
                 }
+
                 current.copy(
                     candidates = updated.toImmutableList(),
                     isBulkAdding = false,

@@ -106,8 +106,6 @@ class StarredRepositoryImpl(
                         httpClient.get("/users/$sanitized/starred") {
                             parameter("per_page", perPage)
                             parameter("page", page)
-                            // application/vnd.github.star+json reveals starred_at for ordering
-                            header("Accept", "application/vnd.github.star+json")
                         }
 
                     if (!response.status.isSuccess()) {

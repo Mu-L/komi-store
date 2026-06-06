@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
@@ -134,6 +135,8 @@ class ImportStarsViewModel(
             val result = runCatching {
                 starredRepository.fetchStarredForUsername(username)
             }.getOrElse { Result.failure(it) }
+
+            ensureActive()
 
             result.fold(
                 onSuccess = { repos ->

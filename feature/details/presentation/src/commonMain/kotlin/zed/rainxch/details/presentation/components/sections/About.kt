@@ -68,6 +68,7 @@ fun LazyListScope.about(
     measuredHeightPx: Float?,
     onMeasured: (Float) -> Unit,
     onTranslateLanguage: ((String) -> Unit)? = null,
+    onOpenInternalMarkdown: ((String) -> Unit)? = null,
     onReadMore: (() -> Unit)? = null,
 ) {
     item {
@@ -105,8 +106,9 @@ fun LazyListScope.about(
     }
 
     item(key = "about_markdown") {
-        val raw = readmeMarkdown
         val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+        val raw = applyThemeAwareImages(readmeMarkdown, isDark = isDark)
+        
         val probeClient = org.koin.compose.koinInject<io.ktor.client.HttpClient>(
             qualifier = org.koin.core.qualifier.named("test"),
         )
@@ -117,6 +119,7 @@ fun LazyListScope.about(
         if (onTranslateLanguage != null) {
             zed.rainxch.details.presentation.utils.ProvideLanguageLinkInterceptor(
                 onTranslate = onTranslateLanguage,
+                onOpenInternalMarkdown = onOpenInternalMarkdown,
             ) {
                 ExpandableMarkdownContent(
                     rawMarkdown = raw,

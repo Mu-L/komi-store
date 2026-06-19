@@ -894,4 +894,43 @@ class DetailsRepositoryImpl(
             false
         }
 
+    override suspend fun fetchRawMarkdown(url: String): String? {
+        val fetchUrl = if (url.startsWith("https://github.com/") && url.contains("/blob/")) {
+            url.replaceFirst("https://github.com/", "https://raw.githubusercontent.com/")
+               .replaceFirst("/blob/", "/")
+        } else {
+            url
+        }
+
+        return try {
+            val rawMarkdown = httpClient.executeRequest<String> {
+                get(fetchUrl)
+            }.getOrNull()
+
+            if (rawMarkdown != null) {
+                val match = Regex("""https://(?:raw\.githubusercontent\.com|github\.com)/([^/]+)/([^/]+)/(?:blob/)?([^/]+)/(.*)""").find(url)
+                if (match != null) {
+                    val owner = match.groupValues[1]
+                    val repo = match.groupValues[2]
+                    val branch = match.groupValues[3]
+                    val path = match.groupValues[4]
+
+                    val basePath = path.substringBeforeLast("/", "")
+                    val pathPrefix = if (basePath.isNotEmpty()) "$basePath/" else ""
+
+                    val baseUrl = "https://raw.githubusercontent.com/$owner/$repo/$branch/$pathPrefix"
+                    val linkBaseUrl = "https://github.com/$owner/$repo/blob/$branch/$pathPrefix"
+
+                    preprocessMarkdown(markdown = rawMarkdown, baseUrl = baseUrl, linkBaseUrl = linkBaseUrl)
+                } else {
+                    rawMarkdown
+                }
+            } else null
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error("Failed to fetch raw markdown from $url: ${e.message}")
+            null
+        }
+    }
 }

@@ -22,50 +22,66 @@ object DesktopDeepLink {
     }
 
     private fun registerWindows() {
-        val exePath = resolveExePath() ?: return
+        val exePath =
+            resolveExePath() ?: run {
+                println("DeepLink: skipped Windows scheme registration (exe path unresolved)")
+                return
+            }
 
-        val commandKey = "HKCU\\SOFTWARE\\Classes\\$SCHEME\\shell\\open\\command"
-        val existing = runCommand("reg", "query", commandKey, "/ve")
-        if (existing != null && existing.contains(exePath, ignoreCase = true)) return
+        val iconValue = "\"$exePath\",1"
+        val commandValue = "\"$exePath\" \"%1\""
 
-        runCommand(
-            "reg",
-            "add",
-            "HKCU\\SOFTWARE\\Classes\\$SCHEME",
-            "/ve",
-            "/d",
-            "URL:Komi Store Protocol",
-            "/f",
-        )
-        runCommand(
-            "reg",
-            "add",
-            "HKCU\\SOFTWARE\\Classes\\$SCHEME",
-            "/v",
-            "URL Protocol",
-            "/d",
-            "",
-            "/f",
-        )
-        runCommand(
-            "reg",
-            "add",
-            "HKCU\\SOFTWARE\\Classes\\$SCHEME\\DefaultIcon",
-            "/ve",
-            "/d",
-            "\"$exePath\",1",
-            "/f",
-        )
-        runCommand(
-            "reg",
-            "add",
-            commandKey,
-            "/ve",
-            "/d",
-            "\"$exePath\" \"%1\"",
-            "/f",
-        )
+        if (windowsRegistrationIsValid(commandValue)) return
+
+        val regContent =
+            buildString {
+                append("Windows Registry Editor Version 5.00\r\n\r\n")
+                append("[HKEY_CURRENT_USER\\SOFTWARE\\Classes\\$SCHEME]\r\n")
+                append("@=\"URL:Komi Store Protocol\"\r\n")
+                append("\"URL Protocol\"=\"\"\r\n\r\n")
+                append("[HKEY_CURRENT_USER\\SOFTWARE\\Classes\\$SCHEME\\DefaultIcon]\r\n")
+                append("@=\"${regEscape(iconValue)}\"\r\n\r\n")
+                append("[HKEY_CURRENT_USER\\SOFTWARE\\Classes\\$SCHEME\\shell\\open\\command]\r\n")
+                append("@=\"${regEscape(commandValue)}\"\r\n")
+            }
+
+        val regFile =
+            try {
+                File.createTempFile("komi-scheme", ".reg")
+            } catch (e: Exception) {
+                println("DeepLink: Windows scheme registration failed (temp file): ${e.message}")
+                return
+            }
+
+        try {
+            regFile.writeBytes(("\uFEFF$regContent").toByteArray(Charsets.UTF_16LE))
+            val result = runCommandResult("reg", "import", regFile.absolutePath)
+            if (result == null || result.exitCode != 0) {
+                println("DeepLink: Windows scheme registration failed (reg import): ${result?.output?.trim().orEmpty()}")
+            }
+        } catch (e: Exception) {
+            println("DeepLink: Windows scheme registration failed: ${e.message}")
+        } finally {
+            runCatching { regFile.delete() }
+        }
     }
+
+    private fun windowsRegistrationIsValid(expectedCommandValue: String): Boolean {
+        val protocol = runCommand("reg", "query", "HKCU\\SOFTWARE\\Classes\\$SCHEME", "/v", "URL Protocol")
+        if (protocol == null || !protocol.contains("URL Protocol")) return false
+        val command =
+            runCommand("reg", "query", "HKCU\\SOFTWARE\\Classes\\$SCHEME\\shell\\open\\command", "/ve")
+                ?: return false
+        val actualCommandValue =
+            command
+                .lineSequence()
+                .firstOrNull { it.contains("REG_SZ") }
+                ?.substringAfter("REG_SZ")
+                ?.trim()
+        return actualCommandValue.equals(expectedCommandValue, ignoreCase = true)
+    }
+
+    private fun regEscape(value: String): String = value.replace("\\", "\\\\").replace("\"", "\\\"")
 
     private fun registerLinux() {
         val appsDir = File(System.getProperty("user.home"), ".local/share/applications")
@@ -142,22 +158,32 @@ object DesktopDeepLink {
                 .info()
                 .command()
                 .orElse(null)
-                ?.takeIf { it.isNotBlank() }
+                ?.takeIf {
+                    it.isNotBlank() &&
+                        !it.endsWith("java.exe", ignoreCase = true) &&
+                        !it.endsWith("javaw.exe", ignoreCase = true)
+                }
         } catch (_: Exception) {
             null
         }
     }
 
-    private fun runCommand(vararg cmd: String): String? =
+    private data class CommandResult(
+        val exitCode: Int,
+        val output: String,
+    )
+
+    private fun runCommandResult(vararg cmd: String): CommandResult? =
         try {
             val process =
                 ProcessBuilder(*cmd)
                     .redirectErrorStream(true)
                     .start()
             val output = process.inputStream.bufferedReader().readText()
-            process.waitFor()
-            output
+            CommandResult(process.waitFor(), output)
         } catch (_: Exception) {
             null
         }
+
+    private fun runCommand(vararg cmd: String): String? = runCommandResult(*cmd)?.takeIf { it.exitCode == 0 }?.output
 }
